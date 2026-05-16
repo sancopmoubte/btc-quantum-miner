@@ -688,21 +688,12 @@
             }
         }
 
-        /* 挖矿效果 */
-        @keyframes flashEffect {
-            0% { background-color: rgba(255, 255, 255, 0.0); }
-            50% { background-color: rgba(255, 255, 255, 0.1); }
-            100% { background-color: rgba(255, 255, 255, 0.0); }
-        }
+        /* 挖矿效果 - 已移除闪烁和震动效果 */
         .flash-active {
-            animation: flashEffect 0.3s ease-out;
+            /* 闪烁效果已禁用 */
         }
         .vibrate-active {
-            animation: vibrate 0.1s linear infinite alternate;
-        }
-        @keyframes vibrate {
-            0% { transform: translate(1px, 1px); }
-            100% { transform: translate(-1px, -1px); }
+            /* 震动效果已禁用 */
         }
 
         /* 数字跳动效果 */
@@ -760,8 +751,8 @@
         <div class="btc-showcase">
             <h1 class="title">BTC 量子矿机 · 模拟挖矿系统</h1>
             <div class="balance-display">
-                <div class="balance-label">当前余额 (BTC)</div>
-                <div id="btcBalance" class="balance-value">0.00000000</div>
+                <div class="balance-label">当前余额 (Satoshi)</div>
+                <div id="btcBalance" class="balance-value">0</div>
             </div>
 
             <div class="control-panel">
@@ -910,8 +901,8 @@
 
         // ============ UI 更新 ============ //
         function updateBalanceDisplay() {
-            const btcValue = (balance / 100000000).toFixed(8); // Satoshi转BTC并格式化
-            btcBalanceEl.textContent = btcValue;
+            // 直接显示 Satoshi 数量（整数形式）
+            btcBalanceEl.textContent = balance.toLocaleString();
             btcBalanceEl.classList.add('balance-glow'); // 添加光效动画
             setTimeout(() => btcBalanceEl.classList.remove('balance-glow'), 800);
         }
@@ -978,16 +969,8 @@
 
         // ============ 视觉效果 ============ //
         function triggerCoinEffect() {
-            // 页面闪烁
-            document.body.classList.add('flash-active');
-            setTimeout(() => document.body.classList.remove('flash-active'), 300);
-
-            // 页面轻微震动
-            document.body.classList.add('vibrate-active');
-            setTimeout(() => document.body.classList.remove('vibrate-active'), 100);
-
-            // 粒子爆发 (可选，如果需要更复杂的Canvas粒子效果)
-            // createSparkBurst();
+            // 已移除闪烁和震动效果，保留光效动画
+            // 仅保留余额数字的光效变化
         }
 
         // ============ 模态框逻辑 ============ //
