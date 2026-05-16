@@ -21,6 +21,28 @@
             justify-content: center;
             padding: 20px;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景说明文字 */
+        body::before {
+            content: '这是一个比特币铭文 BRC-20 的代币挖掘网页\A每个代币代表名字叫 BTC 的四字符铭文\A铭文名字叫 BTC';
+            white-space: pre;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            font-weight: 700;
+            color: rgba(255, 215, 0, 0.08);
+            text-align: center;
+            z-index: 0;
+            pointer-events: none;
+            line-height: 1.8;
+            letter-spacing: 2px;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.05);
+            width: 90%;
+            max-width: 800px;
         }
 
         .container {
@@ -312,16 +334,18 @@
         }
 
         .contact-info {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.5);
             border-radius: 10px;
             padding: 16px;
             margin-bottom: 24px;
             font-family: 'Monaco', monospace;
-            font-size: 16px;
-            font-weight: 700;
-            color: #00d4ff;
+            font-size: 18px;
+            font-weight: 900;
+            color: #FFD700;
             word-break: break-all;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
         }
 
         .copy-btn {
@@ -374,7 +398,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="position: relative; z-index: 1;">
         <!-- 左侧：挖矿日志 -->
         <div class="log-panel">
             <div class="log-title">⚡ 挖矿日志</div>
@@ -429,7 +453,7 @@
     </div>
 
     <!-- 提现模态框 -->
-    <div class="modal" id="withdrawModal">
+    <div class="modal" id="withdrawModal" style="position: fixed; z-index: 1000;">
         <div class="modal-content">
             <div class="modal-title">提现申请</div>
             <div class="modal-text">请联系客服处理您的提现申请</div>
