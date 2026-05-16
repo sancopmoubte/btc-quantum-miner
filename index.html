@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC 时空矿场 | Satoshi Generator</title>
+    <style>
+        :root {
+            --bg-deep: #03050a;
+            --bg-card: rgba(12, 16, 28, 0.85);
+            --btc-gold: #F7931A;
+            --btc-gold-light: #FFB84D;
+            --btc-gold-dark: #C77412;
+            --accent-cyan: #00e5ff;
+            --accent-purple: #7c4dff;
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a4b8;
+            --text-muted: #5a5d72;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(247, 147, 26, 0.3);
+            --shadow-gold: 0 0 60px rgba(247, 147, 26, 0.25), 0 0 120px rgba(247, 147, 26, 0.08);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            --font-sans: 'SF Pro Display', 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-deep);
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ============ 星空画布 ============ */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ============ 全局光晕 ============ */
+        .global-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(180px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+        }
+        .glow-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(247, 147, 26, 0.35) 0%, transparent 70%);
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: glowPulse 6s ease-in-out infinite;
+        }
+        .glow-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(124, 77, 255, 0.2) 0%, transparent 70%);
+            bottom: -100px;
+            right: -80px;
+            animation: glowPulse 8s ease-in-out 3s infinite;
+        }
+        .glow-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.12) 0%, transparent 70%);
+            bottom: 20%;
+            left: -100px;
+            animation: glowPulse 7s ease-in-out 1.5s infinite;
+        }
+
+        @keyframes glowPulse {
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: translateX(-50%) scale(1.2);
+            }
+        }
+        .glow-2,
+        .glow-3 {
+            animation: glowPulseAlt 8s ease-in-out infinite;
+        }
+        @keyframes glowPulseAlt {
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.45;
+                transform: scale(1.3);
+            }
+        }
+
+        /* ============ 主容器 ============ */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 28px;
+        }
+
+        /* ============ 顶部信息栏 ============ */
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 14px 24px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-smooth);
+            max-width: 700px;
+            width: 100%;
+        }
+        .top-bar:hover {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-card), 0 0 40px rgba(247, 147, 26, 0.08);
+        }
+        .top-bar .btc-icon-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #F7931A 0%, #e8821a 50%, #c46e0f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(247, 147, 26, 0.4);
+            animation: btcPulse 2s ease-in-out infinite;
+        }
+        @keyframes btcPulse {
+            0%,
+            100% {
+                box-shadow: 0 4px 16px rgba(247, 147, 26, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 28px rgba(247, 147, 26, 0.7);
+            }
+        }
+        .top-bar .price-group {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .top-bar .price-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .top-bar .price-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        .top-bar .price-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            letter-spacing: -0.01em;
+        }
+        .price-change.positive {
+            background: rgba(0, 200, 83, 0.15);
+            color: #00e676;
+            border: 1px solid rgba(0, 200, 83, 0.25);
+        }
+        .price-change.negative {
+            background: rgba(255, 52, 52, 0.15);
+            color: #ff5252;
+            border: 1px solid rgba(255, 52, 52, 0.25);
+        }
+        .top-bar .divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border-subtle);
+            flex-shrink: 0;
+        }
+        .top-bar .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+        }
+        .top-bar .info-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+        .top-bar .info-val {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        /* ============ 中心BTC展示区 ============ */
+        .btc-showcase {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .btc-orb-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .btc-orb-container:active {
+            transform: scale(0.94);
+        }
+        .btc-orb {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #FFB84D 0%, #F7931A 30%, #c46e0f 55%, #8B4513 80%, #3d1c00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-gold), inset 0 -6px 20px rgba(0, 0, 0, 0.4), inset 0 4px 12px rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 2;
+            animation: orbFloat 4s ease-in-out infinite;
+            transition: var(--transition-smooth);
+        }
+        .btc-orb::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid rgba(247, 147, 26, 0.35);
+            animation: orbRing 3s linear infinite;
+            pointer-events: none;
+        }
+        .btc-orb::before {
+            content: '';
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            border: 1px solid rgba(247, 147, 26, 0.12);
+            animation: orbRing 5s linear infinite reverse;
+            pointer-events: none;
+        }
+        @keyframes orbFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+        @keyframes orbRing {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .btc-orb-symbol {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
+            z-index: 3;
+            pointer-events: none;
+            line-height: 1;
+            animation: symbolShine 3s ease-in-out infinite;
+        }
+        @keyframes symbolShine {
+            0%,
+            100% {
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 50px rgba(255, 255, 255, 0.55);
+            }
+        }
+        .btc-orb-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: radial-gradient(circle, rgba(247, 147, 26, 0.6) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transition: none;
+        }
+        .btc-orb-ripple.active {
+            animation: rippleOut 0.8s ease-out forwards;
+        }
+        @keyframes rippleOut {
+            0% {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        /* 粒子爆发 */
+        .spark-burst {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .spark-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--btc-gold-light);
+            animation: sparkFly 0.7s ease-out forwards;
+            box-shadow: 0 0 6px var(--btc-gold-light);
+        }
+        @keyframes sparkFly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ============ 倒计时环 ============ */
+        .countdown-ring-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        .countdown-ring-container svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .countdown-ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.06);
+            stroke-width: 3;
+        }
+        .countdown-ring-fg {
+            fill: none;
+            stroke: var(--btc-gold);
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s linear;
+            filter: drop-shadow(0 0 6px rgba(247, 147, 26, 0.6));
+        }
+        .countdown-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: #fff;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+        .countdown-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* ============ 统计卡片 ============ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            max-width: 700px;
+            width: 100%;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px 16px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+        }
+        .stat-icon {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .stat-card.highlight {
+            border-color: rgba(247, 147, 26, 0.25);
+            background: rgba(247, 147, 26, 0.03);
+        }
+        .stat-card.highlight .stat-value {
+            color: var(--btc-gold-light);
+            text-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
+        }
+
+        /* ============ 底部信息 ============ */
+        .bottom-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+        }
+        .bottom-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .dot-live {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00e676;
+            animation: liveDot 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes liveDot {
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 6px #00e676;
+            }
+            50% {
+                opacity: 0.3;
+                box-shadow: 0 0 2px #00e676;
+            }
+        }
+
+        /* ============ 飞行代币动画 ============ */
+        .flying-token {
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--btc-gold-light);
+            text-shadow: 0 0 12px rgba(247, 147, 26, 0.7);
+            animation: flyToCounter 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            white-space: nowrap;
+        }
+        @keyframes flyToCounter {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            60% {
+                opacity: 0.9;
+                transform: translate(var(--mid-x), var(--mid-y)) scale(1.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--end-x), var(--end-y)) scale(0.5);
+            }
+        }
+
+        /* ============ Toast 提示 ============ */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 30px;
+            padding: 10px 22px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--btc-gold-light);
+            z-index: 100;
+            pointer-events: none;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(247, 147, 26, 0.15);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.hide {
+            transform: translateX(-50%) translateY(-120px);
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 600px) {
+            .btc-orb-container {
+                width: 130px;
+                height: 130px;
+            }
+            .btc-orb-symbol {
+                font-size: 3rem;
+            }
+            .top-bar {
+                padding: 10px 14px;
+                gap: 10px;
+                border-radius: var(--radius-md);
+            }
+            .top-bar .price-value {
+                font-size: 1.2rem;
+            }
+            .top-bar .btc-icon-sm {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+            .top-bar .divider {
+                height: 20px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 12px 10px;
+                border-radius: var(--radius-sm);
+            }
+            .stat-card .stat-value {
+                font-size: 1.3rem;
+            }
+            .countdown-ring-container {
+                width: 56px;
+                height: 56px;
+            }
+            .countdown-text {
+                font-size: 1.2rem;
+            }
+            .main-container {
+                gap: 18px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 全局光晕 -->
+    <div class="global-glow glow-1"></div>
+    <div class="global-glow glow-2"></div>
+    <div class="global-glow glow-3"></div>
+
+    <!-- 星空画布 -->
+    <canvas id="starfield"></canvas>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+
+        <!-- 顶部信息栏 -->
+        <div class="top-bar" id="topBar">
+            <div class="btc-icon-sm">₿</div>
+            <div class="price-group">
+                <span class="price-label">BTC / USD</span>
+                <span class="price-value" id="btcPrice">$67,842.31</span>
+                <span class="price-change positive" id="btcChange">+2.34%</span>
+            </div>
+            <div class="divider"></div>
+            <div class="info-item">
+                <span class="info-label">24h Vol</span>
+                <span class="info-val" id="btcVol">$28.4B</span>
+            </div>
+            <div class="divider"></div>
+            <div class="info-item">
+                <span class="info-label">Hash Rate</span>
+                <span class="info-val" id="hashRate">642 EH/s</span>
+            </div>
+        </div>
+
+        <!-- 中心展示区 -->
+        <div class="btc-showcase">
+            <div class="btc-orb-container" id="btcOrbContainer" title="点击加速生成">
+                <div class="btc-orb" id="btcOrb">
+                    <span class="btc-orb-symbol">₿</span>
+                </div>
+                <div class="btc-orb-ripple" id="btcRipple"></div>
+            </div>
+            <!-- 倒计时环 -->
+            <div class="countdown-ring-container">
+                <svg viewBox="0 0 80 80">
+                    <circle class="countdown-ring-bg" cx="40" cy="40" r="35"/>
+                    <circle class="countdown-ring-fg" id="countdownRing" cx="40" cy="40" r="35"
+                    stroke-dasharray="219.91" stroke-dashoffset="0"/>
+                </svg>
+                <div class="countdown-text" id="countdownText">3</div>
+            </div>
+            <div class="countdown-label">下一秒生成</div>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-grid">
+            <div class="stat-card highlight" id="cardTotal">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value" id="totalTokens">0</div>
+                <div class="stat-label">累计 Satoshi</div>
+            </div>
+            <div class="stat-card" id="cardToday">
+                <div class="stat-icon">📅</div>
+                <div class="stat-value" id="todayTokens">0</div>
+                <div class="stat-label">今日生成</div>
+            </div>
+            <div class="stat-card" id="cardPending">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="pendingTokens">0</div>
+                <div class="stat-label">待收集</div>
+            </div>
+            <div class="stat-card" id="withdrawBtn">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">提现</div>
+                <div class="stat-label">点击提现到钱包</div>
+            </div>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="bottom-info">
+            <span><span class="dot-live"></span> 实时挖矿中</span>
+            <span>速率: 1 Sat / 3秒</span>
+            <span>数据存储于本地浏览器</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== 星空背景 ====================
+            const canvas = document.getElementById('starfield');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            let particles = [];
+            const STAR_COUNT = 200;
+            const PARTICLE_COUNT = 40;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                initStars();
+                initParticles();
+            });
+
+            function initStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 1.5 + 0.3,
+                        twinkleSpeed: Math.random() * 0.02 + 0.005,
+                        twinkleOffset: Math.random() * Math.PI * 2,
+                        baseAlpha: Math.random() * 0.7 + 0.3,
+                        driftX: (Math.random() - 0.5) * 0.15,
+                        driftY: (Math.random() - 0.5) * 0.1,
+                    });
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 1.2 + 0.4,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        alpha: Math.random() * 0.5 + 0.2,
+                        color: Math.random() < 0.35 ? '247,147,26' : '255,255,255',
+                    });
+                }
+            }
+            initStars();
+            initParticles();
+
+            function drawStarfield() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const now = Date.now() * 0.001;
+
+                stars.forEach(s => {
+                    const alpha = s.baseAlpha + Math.sin(now * s.twinkleSpeed * 60 + s.twinkleOffset) * 0.25;
+                    const clampedAlpha = Math.max(0.15, Math.min(1, alpha));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${clampedAlpha})`;
+                    ctx.fill();
+                    s.x += s.driftX;
+                    s.y += s.driftY;
+                    if (s.x < -5) s.x = canvas.width + 5;
+                    if (s.x > canvas.width + 5) s.x = -5;
+                    if (s.y < -5) s.y = canvas.height + 5;
+                    if (s.y > canvas.height + 5) s.y = -5;
+                });
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < -10) p.x = canvas.width + 10;
+                    if (p.x > canvas.width + 10) p.x = -10;
+                    if (p.y < -10) p.y = canvas.height + 10;
+                    if (p.y > canvas.height + 10) p.y = -10;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+                    ctx.fill();
+                    if (p.color === '247,147,26') {
+                        ctx.shadowColor = 'rgba(247,147,26,0.5)';
+                        ctx.shadowBlur = 4;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                });
+
+                requestAnimationFrame(drawStarfield);
+            }
+            drawStarfield();
+
+            // ==================== 数据管理 ====================
+            const STORAGE_KEY = 'btc_satoshi_miner_data';
+            const TOKEN_INTERVAL = 3; // 秒
+            const SATS_PER_BTC = 100000000;
+
+            function loadData() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        return {
+                            totalTokens: data.totalTokens || 0,
+                            lastUpdateTime: data.lastUpdateTime || Date.now(),
+                            todayTokens: data.todayTokens || 0,
+                            todayDate: data.todayDate || getDateString(),
+                            pendingTokens: data.pendingTokens || 0,
+                        };
+                    }
+                } catch (e) {
+                    console.warn('数据读取失败，重置数据');
+                }
+                return {
+                    totalTokens: 0,
+                    lastUpdateTime: Date.now(),
+                    todayTokens: 0,
+                    todayDate: getDateString(),
+                    pendingTokens: 0,
+                };
+            }
+
+            function saveData(data) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.warn('数据保存失败:', e);
+                }
+            }
+
+            function getDateString() {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+
+            let appData = loadData();
+
+            const currentDate = getDateString();
+            if (appData.todayDate !== currentDate) {
+                appData.todayTokens = 0;
+                appData.todayDate = currentDate;
+                appData.pendingTokens = 0;
+            }
+
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - appData.lastUpdateTime) / 1000);
+            if (elapsedSeconds >= TOKEN_INTERVAL) {
+                const offlineTokens = Math.floor(elapsedSeconds / TOKEN_INTERVAL);
+                const cappedOffline = Math.min(offlineTokens, 28800);
+                if (cappedOffline > 0) {
+                    appData.totalTokens += cappedOffline;
+                    appData.todayTokens += cappedOffline;
+                    appData.lastUpdateTime = now - ((elapsedSeconds % TOKEN_INTERVAL) * 1000);
+                    appData.pendingTokens += Math.min(cappedOffline, 50);
+                    saveData(appData);
+                    showToast(`⛏️ 离线期间自动挖掘了 ${cappedOffline.toLocaleString()} Satoshi`);
+                }
+            }
+
+            if (!appData.lastUpdateTime || appData.lastUpdateTime > now) {
+                appData.lastUpdateTime = now;
+            }
+
+            // ==================== DOM元素 ====================
+            const btcOrbContainer = document.getElementById('btcOrbContainer');
+            const btcOrb = document.getElementById('btcOrb');
+            const btcRipple = document.getElementById('btcRipple');
+            const countdownRing = document.getElementById('countdownRing');
+            const countdownText = document.getElementById('countdownText');
+            const totalTokensEl = document.getElementById('totalTokens');
+            const todayTokensEl = document.getElementById('todayTokens');
+            const pendingTokensEl = document.getElementById('pendingTokens');
+            const btcPriceEl = document.getElementById('btcPrice');
+            const btcChangeEl = document.getElementById('btcChange');
+            const btcVolEl = document.getElementById('btcVol');
+            const hashRateEl = document.getElementById('hashRate');
+            const toastEl = document.getElementById('toast');
+            const cardTotal = document.getElementById('cardTotal');
+            const cardToday = document.getElementById('cardToday');
+            const cardPending = document.getElementById('cardPending');
+            const withdrawBtn = document.getElementById('withdrawBtn');
+
+            const RING_CIRCUMFERENCE = 2 * Math.PI * 35;
+            countdownRing.style.strokeDasharray = RING_CIRCUMFERENCE;
+            countdownRing.style.strokeDashoffset = '0';
+
+            // ==================== BTC价格模拟 ====================
+            let btcPrice = 67842.31;
+            let btcChangePercent = 2.34;
+            let btcVol = 28.4;
+            let hashRateVal = 642;
+
+            function updateBTCDisplay() {
+                const microChange = (Math.random() - 0.48) * 15;
+                btcPrice += microChange;
+                btcPrice = Math.max(65000, Math.min(72000, btcPrice));
+                btcChangePercent += (Math.random() - 0.5) * 0.06;
+                btcChangePercent = Math.max(-3.5, Math.min(4.5, btcChangePercent));
+                btcChangePercent = Math.round(btcChangePercent * 100) / 100;
+                btcVol += (Math.random() - 0.5) * 0.6;
+                btcVol = Math.max(20, Math.min(45, btcVol));
+                hashRateVal += (Math.random() - 0.5) * 8;
+                hashRateVal = Math.max(580, Math.min(720, hashRateVal));
+
+                btcPriceEl.textContent = '$' + btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const isPositive = btcChangePercent >= 0;
+                btcChangeEl.textContent = (isPositive ? '+' : '') + btcChangePercent.toFixed(2) + '%';
+                btcChangeEl.className = 'price-change ' + (isPositive ? 'positive' : 'negative');
+                btcVolEl.textContent = '$' + btcVol.toFixed(1) + 'B';
+                hashRateEl.textContent = Math.round(hashRateVal) + ' EH/s';
+            }
+
+            updateBTCDisplay();
+            setInterval(updateBTCDisplay, 2500 + Math.random() * 2000);
+
+            // ==================== UI更新 ====================
+            function updateAllUI(flashTotal = false, flashToday = false) {
+                totalTokensEl.textContent = appData.totalTokens.toLocaleString();
+                todayTokensEl.textContent = appData.todayTokens.toLocaleString();
+                pendingTokensEl.textContent = appData.pendingTokens.toLocaleString();
+
+                if (flashTotal) {
+                    cardTotal.classList.add('highlight');
+                    setTimeout(() => cardTotal.classList.remove('highlight'), 600);
+                }
+                if (flashToday) {
+                    cardToday.classList.add('highlight');
+                    setTimeout(() => cardToday.classList.remove('highlight'), 600);
+                }
+                if (appData.pendingTokens > 0) {
+                    cardPending.classList.add('highlight');
+                } else {
+                    cardPending.classList.remove('highlight');
+                }
+            }
+            updateAllUI();
+
+            // ==================== 倒计时逻辑 ====================
+            let countdownSeconds = TOKEN_INTERVAL;
+            let lastTickTime = Date.now();
+
+            function updateCountdownDisplay() {
+                const offset = (1 - countdownSeconds / TOKEN_INTERVAL) * RING_CIRCUMFERENCE;
+                countdownRing.style.strokeDashoffset = offset;
+                countdownText.textContent = Math.ceil(countdownSeconds);
+                if (countdownSeconds <= 1) {
+                    countdownText.style.color = '#FFD700';
+                    countdownText.style.textShadow = '0 0 20px rgba(255,215,0,0.7)';
+                } else {
+                    countdownText.style.color = '#fff';
+                    countdownText.style.textShadow = '0 0 12px rgba(255,255,255,0.4)';
+                }
+            }
+
+            function generateToken(source = 'auto') {
+                appData.totalTokens += 1;
+                appData.todayTokens += 1;
+                appData.pendingTokens = Math.max(0, appData.pendingTokens - 1);
+                appData.lastUpdateTime = Date.now();
+                saveData(appData);
+                updateAllUI(true, true);
+                spawnFlyingToken(source);
+                triggerRipple();
+                spawnSparks();
+            }
+
+            // ==================== 主循环 ====================
+            function mainLoop() {
+                const now = Date.now();
+                const dt = (now - lastTickTime) / 1000;
+                lastTickTime = now;
+
+                countdownSeconds -= dt;
+                if (countdownSeconds <= 0) {
+                    generateToken('auto');
+                    const overflow = Math.abs(countdownSeconds);
+                    countdownSeconds = TOKEN_INTERVAL - (overflow % TOKEN_INTERVAL);
+                    if (countdownSeconds < 0.05) countdownSeconds = TOKEN_INTERVAL;
+                    appData.lastUpdateTime = now;
+                    saveData(appData);
+                }
+                updateCountdownDisplay();
+
+                requestAnimationFrame(() => {
+                    setTimeout(mainLoop, 200);
+                });
+            }
+
+            function initCountdown() {
+                const now = Date.now();
+                const elapsedSinceLast = (now - appData.lastUpdateTime) / 1000;
+                const remaining = TOKEN_INTERVAL - (elapsedSinceLast % TOKEN_INTERVAL);
+                countdownSeconds = Math.max(0.05, remaining);
+                lastTickTime = now;
+                updateCountdownDisplay();
+            }
+            initCountdown();
+            setTimeout(mainLoop, 200);
+
+            // ==================== 飞行代币动画 ====================
+            function spawnFlyingToken(source) {
+                const orbRect = btcOrbContainer.getBoundingClientRect();
+                const startX = orbRect.left + orbRect.width / 2;
+                const startY = orbRect.top + orbRect.height / 2;
+
+                const targetEl = document.getElementById('cardTotal');
+                const targetRect = targetEl.getBoundingClientRect();
+                const endX = targetRect.left + targetRect.width / 2;
+                const endY = targetRect.top + targetRect.height / 2;
+
+                const midX = (endX - startX) * (0.4 + Math.random() * 0.3);
+                const midY = (endY - startY) * (0.3 + Math.random() * 0.4) - 60 - Math.random() * 40;
+
+                const tokenEl = document.createElement('div');
+                tokenEl.className = 'flying-token';
+                tokenEl.textContent = '✦ 1 Sat';
+                tokenEl.style.left = startX + 'px';
+                tokenEl.style.top = startY + 'px';
+                tokenEl.style.setProperty('--mid-x', midX + 'px');
+                tokenEl.style.setProperty('--mid-y', midY + 'px');
+                tokenEl.style.setProperty('--end-x', (endX - startX) + 'px');
+                tokenEl.style.setProperty('--end-y', (endY - startY) + 'px');
+                document.body.appendChild(tokenEl);
+
+                tokenEl.addEventListener('animationend', () => {
+                    tokenEl.remove();
+                });
+            }
+
+            function triggerRipple() {
+                btcRipple.classList.remove('active');
+                void btcRipple.offsetWidth;
+                btcRipple.classList.add('active');
+            }
+
+            function spawnSparks() {
+                const orbRect = btcOrbContainer.getBoundingClientRect();
+                const cx = orbRect.left + orbRect.width / 2;
+                const cy = orbRect.top + orbRect.height / 2;
+                const count = 18;
+
+                for (let i = 0; i < count; i++) {
+                    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+                    const distance = 40 + Math.random() * 60;
+                    const dx = Math.cos(angle) * distance;
+                    const dy = Math.sin(angle) * distance;
+                    const spark = document.createElement('div');
+                    spark.className = 'spark-particle';
+                    spark.style.left = cx + 'px';
+                    spark.style.top = cy + 'px';
+                    spark.style.setProperty('--dx', dx + 'px');
+                    spark.style.setProperty('--dy', dy + 'px');
+                    spark.style.animationDuration = (0.5 + Math.random() * 0.6) + 's';
+                    spark.style.width = (2 + Math.random() * 4) + 'px';
+                    spark.style.height = spark.style.width;
+                    spark.style.background = Math.random() < 0.5 ? '#FFD700' : '#FFB84D';
+                    document.body.appendChild(spark);
+                    spark.addEventListener('animationend', () => spark.remove());
+                }
+            }
+
+            // ==================== 点击BTC加速 ====================
+            btcOrbContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (countdownSeconds > 0.8) {
+                    countdownSeconds = 0.8;
+                    updateCountdownDisplay();
+                    showToast('⚡ 时空加速已激活！');
+                }
+                spawnSparks();
+                triggerRipple();
+                btcOrb.style.transform = 'scale(0.92)';
+                setTimeout(() => {
+                    btcOrb.style.transform = '';
+                }, 150);
+            });
+
+            // ==================== 提现功能 ====================
+            withdrawBtn.addEventListener('click', () => {
+                alert('提现申请已提交！联系客服：15932447705');
+            });
+
+            // ==================== Toast ====================
+            let toastTimer = null;
+            function showToast(message) {
+                if (toastTimer) clearTimeout(toastTimer);
+                toastEl.textContent = message;
+                toastEl.classList.remove('hide');
+                toastEl.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                    toastEl.classList.add('hide');
+                    toastTimer = null;
+                }, 2200);
+            }
+
+            // ==================== 页面可见性处理 ====================
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    const now = Date.now();
+                    const elapsed = Math.floor((now - appData.lastUpdateTime) / 1000);
+                    if (elapsed >= TOKEN_INTERVAL) {
+                        const offlineTokens = Math.floor(elapsed / TOKEN_INTERVAL);
+                        const capped = Math.min(offlineTokens, 28800);
+                        if (capped > 0) {
+                            appData.totalTokens += capped;
+                            appData.todayTokens += capped;
+                            appData.pendingTokens += Math.min(capped, 50);
+                            appData.lastUpdateTime = now - ((elapsed % TOKEN_INTERVAL) * 1000);
+                            saveData(appData);
+                            updateAllUI(true, true);
+                            showToast(`⛏️ 离线期间挖掘了 ${capped.toLocaleString()} Satoshi`);
+                        }
+                    }
+                    initCountdown();
+                    lastTickTime = Date.now();
+                }
+            });
+
+            console.log('%c🚀 BTC 时空矿场已就绪', 'color:#F7931A;font-size:1.2em;font-weight:bold;');
+        })();
+    </script>
+</body>
+</html>
