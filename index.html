@@ -49,6 +49,26 @@
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+        
+        /* 背景水印文字 */
+        body::before {
+            content: 'BTC\00a0\u9298文\00a0BRC-20\00a0\u6316矿\u7f51页';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            font-weight: 900;
+            color: rgba(247, 147, 26, 0.08);
+            white-space: nowrap;
+            z-index: -1;
+            pointer-events: none;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 60px rgba(247, 147, 26, 0.05);
+            font-family: var(--font-sans);
+            line-height: 1;
         }
 
         /* ============ 星空画布 ============ */
@@ -751,7 +771,7 @@
         <div class="btc-showcase">
             <h1 class="title">BTC 量子矿机 · 模拟挖矿系统</h1>
             <div class="balance-display">
-                <div class="balance-label">当前余额 (Satoshi)</div>
+                <div class="balance-label">当前余额 (BTC)</div>
                 <div id="btcBalance" class="balance-value">0</div>
             </div>
 
