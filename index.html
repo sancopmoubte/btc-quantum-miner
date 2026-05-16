@@ -236,10 +236,12 @@
         .button-group {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .btn {
             flex: 1;
+            min-width: 100px;
             padding: 14px 24px;
             border: none;
             border-radius: 10px;
@@ -276,6 +278,48 @@
         .btn-secondary:hover {
             background: rgba(0, 212, 255, 0.2);
             border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        /* 白皮书模态框特殊样式 */
+        .whitepaper-content {
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #ddd;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .whitepaper-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .whitepaper-content::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .whitepaper-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .whitepaper-section {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .whitepaper-section:last-child {
+            border-bottom: none;
+        }
+
+        .whitepaper-title {
+            color: #00d4ff;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
         /* 模态框 */
@@ -449,6 +493,9 @@
                 <button class="btn btn-primary" id="startBtn">启动挖矿</button>
                 <button class="btn btn-secondary" id="withdrawBtn">提现</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-secondary" id="whitepaperBtn" style="flex: 1;">白皮书</button>
+            </div>
         </div>
     </div>
 
@@ -460,6 +507,44 @@
             <div class="contact-info" id="contactInfo">15932447705</div>
             <button class="copy-btn" id="copyBtn">复制号码</button>
             <button class="modal-close" id="closeBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- 白皮书模态框 -->
+    <div class="modal" id="whitepaperModal" style="position: fixed; z-index: 1000;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-title">BTC 铭文 · 白皮书</div>
+            <div class="whitepaper-content">
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">项目概述</div>
+                    <div>这是一个比特币铭文 BRC-20 的挖矿网页，采用 4 字符设计。本网页挖到的代币，可以兑换比特币铭文名字叫 B.TC、B:TC、B;TC、B,TC、BT;C、B^TC、B~TC、BT>C、B>TC 等十几种名字叫 BTC 的四字符代币。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">代币供应量</div>
+                    <div>所有代币数量高达 2000 万亿，每种代币均为此数量。总代币数量高达几万万亿。由于供应量极其庞大，代币本身没有任何稀缺性，一点点价值都没有。唯一比较特殊的就是占用 BTC 这个名字。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">兑换规则</div>
+                    <div>所有铭文代币，挖到就给兑换。兑换所用的手续费由兑换者提供。本人不提供手续费。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">提现说明</div>
+                    <div>您可以提现到您自己的钱包。<strong>手续费您必须支付，本人才会转移代币</strong>。本人不提供比特币手续费。所有引起比特币链手续费由提现者提供，否则不给提现。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">价值声明</div>
+                    <div>所有代币数量天量，毫无价值，也没有收藏意义。本人不承诺任何价值或增值。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">提现承诺</div>
+                    <div>本人支持一切提现操作。只要您支付相应的比特币链手续费，本人将按要求转移代币到您指定的钱包地址。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">免责声明</div>
+                    <div>用户在使用本网页时，需充分理解代币的无价值特性。所有交易风险由用户自行承担。本人不对任何损失负责。</div>
+                </div>
+            </div>
+            <button class="modal-close" id="whitepaperCloseBtn">关闭</button>
         </div>
     </div>
 
@@ -597,6 +682,29 @@
         closeBtn.addEventListener('click', closeWithdraw);
         copyBtn.addEventListener('click', copyContact);
 
+        // 白皮书功能
+        const whitepaperBtn = document.getElementById('whitepaperBtn');
+        const whitepaperModal = document.getElementById('whitepaperModal');
+        const whitepaperCloseBtn = document.getElementById('whitepaperCloseBtn');
+
+        function openWhitepaper() {
+            whitepaperModal.classList.add('active');
+        }
+
+        function closeWhitepaper() {
+            whitepaperModal.classList.remove('active');
+        }
+
+        whitepaperBtn.addEventListener('click', openWhitepaper);
+        whitepaperCloseBtn.addEventListener('click', closeWhitepaper);
+
+        // 点击模态框外部关闭白皮书
+        whitepaperModal.addEventListener('click', (e) => {
+            if (e.target === whitepaperModal) {
+                closeWhitepaper();
+            }
+        });
+
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
             if (e.target === withdrawModal) {
@@ -607,6 +715,7 @@
         // ========== 初始化 ==========
         loadState();
         addLog('> 系统就绪');
+        addLog('> 点击白皮书了解更多信息');
     </script>
 </body>
 </html>
