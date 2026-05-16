@@ -322,6 +322,49 @@
             font-size: 14px;
         }
 
+        /* 代币列表模态框特殊样式 */
+        .token-list-content {
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 2.2;
+            color: #ddd;
+            text-align: left;
+            margin-bottom: 24px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .token-list-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .token-list-content::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .token-list-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .token-item {
+            padding: 8px 12px;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 2px solid rgba(0, 212, 255, 0.3);
+            margin-bottom: 6px;
+            border-radius: 4px;
+            color: #00d4ff;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+        }
+
+        .token-supply {
+            color: #ffd700;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
         /* 模态框 */
         .modal {
             display: none;
@@ -496,6 +539,9 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-secondary" id="whitepaperBtn" style="flex: 1;">白皮书</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-secondary" id="tokenListBtn" style="flex: 1; font-size: 12px;">可兽换比特币铭文BRC-20代币</button>
+            </div>
         </div>
     </div>
 
@@ -545,6 +591,17 @@
                 </div>
             </div>
             <button class="modal-close" id="whitepaperCloseBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- 代币列表模态框 -->
+    <div class="modal" id="tokenListModal" style="position: fixed; z-index: 1000;">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-title">可兽换比特币铭文 BRC-20 代币列表</div>
+            <div class="token-list-content" id="tokenListContent">
+                <!-- 代币列表将由 JavaScript 动态添加 -->
+            </div>
+            <button class="modal-close" id="tokenListCloseBtn">关闭</button>
         </div>
     </div>
 
@@ -705,6 +762,46 @@
             }
         });
 
+        // 代币列表功能
+        const tokenListBtn = document.getElementById('tokenListBtn');
+        const tokenListModal = document.getElementById('tokenListModal');
+        const tokenListCloseBtn = document.getElementById('tokenListCloseBtn');
+        const tokenListContent = document.getElementById('tokenListContent');
+
+        // 代币列表数据
+        const tokens = [
+            'B.TC', 'B:TC', 'B|TC', 'BT:C', 'BT=C', 'BT%C', 'BT;C', 'B;TC', 
+            'B+TC', 'BT+C', 'B%TC', 'BT~C', 'BT*C', 'BT^C', 'B~TC', 'B,TC', 
+            'B^TC', 'B>TC'
+        ];
+
+        function renderTokenList() {
+            let html = '';
+            tokens.forEach(token => {
+                html += `<div class="token-item">${token}<span class="token-supply">2099 万亿</span></div>`;
+            });
+            tokenListContent.innerHTML = html;
+        }
+
+        function openTokenList() {
+            renderTokenList();
+            tokenListModal.classList.add('active');
+        }
+
+        function closeTokenList() {
+            tokenListModal.classList.remove('active');
+        }
+
+        tokenListBtn.addEventListener('click', openTokenList);
+        tokenListCloseBtn.addEventListener('click', closeTokenList);
+
+        // 点击模态框外部关闭代币列表
+        tokenListModal.addEventListener('click', (e) => {
+            if (e.target === tokenListModal) {
+                closeTokenList();
+            }
+        });
+
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
             if (e.target === withdrawModal) {
@@ -716,6 +813,7 @@
         loadState();
         addLog('> 系统就绪');
         addLog('> 点击白皮书了解更多信息');
+        addLog('> 点击代币列表查看可兽换代币');
     </script>
 </body>
 </html>
