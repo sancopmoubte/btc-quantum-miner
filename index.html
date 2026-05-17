@@ -544,6 +544,12 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-secondary" id="tokenListBtn" style="flex: 1; font-size: 12px;">可兽换比特币铭文BRC-20代币</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-secondary" id="withdrawGuideBtn" style="flex: 1; background: linear-gradient(135deg, #00d4ff, #0099cc);">📋 提现说明</button>
+            </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-secondary" id="communityBonusBtn" style="flex: 1; background: linear-gradient(135deg, #ff6b9d, #c44569);">🎁 社区红利</button>
+            </div>
 
         </div>
     </div>
@@ -608,7 +614,100 @@
         </div>
     </div>
 
+    <!-- 提现说明模态框 -->
+    <div class="modal" id="withdrawGuideModal" style="position: fixed; z-index: 1000;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-title">📋 提现说明</div>
+            <div class="whitepaper-content">
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">提现前的准备</div>
+                    <div>你需要准备一个比特币钱包。比特币钱包是一个 Web3 钱包，可以在其中查看、转移代币。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">比特币钱包地址格式</div>
+                    <div style="font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; background: rgba(0, 212, 255, 0.1); padding: 12px; border-radius: 6px; word-break: break-all; color: #00d4ff;">
+                        bc1p52jn0mkmsf802l24r7tsrlkaumwn8wyzgn5x938ed7wjtl4wu0jshl08ez
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #aaa;">比特币钱包地址就是这个样子的。</div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">提现流程</div>
+                    <div>
+                        <strong>第一步：</strong>准备好你的比特币钱包地址。<br><br>
+                        <strong>第二步：</strong>通过短信或支付宝将你的比特币钱包地址发送给 <span style="color: #ffd700; font-weight: 700;">15932447705</span>。<br><br>
+                        <strong>第三步：</strong>等待确认。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">手续费说明</div>
+                    <div>
+                        每次提现都需要进行比特币钱包链上交易，手续费大概需要 <span style="color: #ffd700; font-weight: 700;">50 元</span>。<br><br>
+                        <strong>重要：</strong>不管你转移 1 个代币、1 亿个代币还是 10 亿个代币，手续费都是大概 50 元（随比特币价格波动）。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">交易所支持提醒</div>
+                    <div>
+                        比特币铭文不是所有交易所都支持。在发起提现请求前，请先查看你所在的交易所是否支持 BRC-20 铭文。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">重要提示</div>
+                    <div>
+                        <strong>没有比特币钱包，就没有办法提现。</strong><br>
+                        没有比特币钱包，也就不需要手续费。
+                    </div>
+                </div>
+            </div>
+            <button class="modal-close" id="withdrawGuideCloseBtn">关闭</button>
+        </div>
+    </div>
 
+    <!-- 社区红利模态框 -->
+    <div class="modal" id="communityBonusModal" style="position: fixed; z-index: 1000;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-title">🎁 社区红利计划</div>
+            <div class="whitepaper-content">
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">为什么需要社区？</div>
+                    <div>
+                        没有社区的代币是无法流通的。所有挖矿者都是在进行单机挖矿，这没有任何意义。你需要把这个网页分享给他人，让更多人了解、使用。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">宜传一人，奖励 10000 代币</div>
+                    <div>
+                        每当你成功宜传一个新的人使用这个网页，你就会获得 <span style="color: #ffd700; font-weight: 700;">10000 代币</span>的奖励。<br><br>
+                        <strong>奖励上不封顶！</strong>你可以无限地分享、无限地获得奖励。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">如何宜传？</div>
+                    <div>
+                        非常简单！只需要把这个网页的链接发送给其他人就可以了。<br><br>
+                        <strong>网页链接：</strong><br>
+                        <span style="font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; background: rgba(0, 212, 255, 0.1); padding: 8px; border-radius: 6px; word-break: break-all; color: #00d4ff; display: block; margin-top: 8px;">
+                            https://sancopmoubte.github.io/btc-quantum-miner/
+                        </span>
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">宜传需要提交资料</div>
+                    <div>
+                        为了验证宜传效果，你需要提交宜传资料才可以兵换奖励。请通过短信或支付宝将资料发送给 <span style="color: #ffd700; font-weight: 700;">15932447705</span>。
+                    </div>
+                </div>
+                <div class="whitepaper-section">
+                    <div class="whitepaper-title">这是一个永久的网页</div>
+                    <div>
+                        这是一个静态网页，理论上的存活时间是 <span style="color: #ffd700; font-weight: 700;">永久</span>。你不用担心它会在几天后就打不开。<br><br>
+                        这个网页会持续更新。你的所有努力都是有意义的。
+                    </div>
+                </div>
+            </div>
+            <button class="modal-close" id="communityBonusCloseBtn">关闭</button>
+        </div>
+    </div>
 
     <script>
         // ========== 状态管理 ==========
@@ -816,7 +915,51 @@
             }
         });
 
+        // 提现说明功能
+        const withdrawGuideBtn = document.getElementById('withdrawGuideBtn');
+        const withdrawGuideModal = document.getElementById('withdrawGuideModal');
+        const withdrawGuideCloseBtn = document.getElementById('withdrawGuideCloseBtn');
 
+        function openWithdrawGuide() {
+            withdrawGuideModal.classList.add('active');
+        }
+
+        function closeWithdrawGuide() {
+            withdrawGuideModal.classList.remove('active');
+        }
+
+        withdrawGuideBtn.addEventListener('click', openWithdrawGuide);
+        withdrawGuideCloseBtn.addEventListener('click', closeWithdrawGuide);
+
+        // 点击模态框外部关闭提现说明
+        withdrawGuideModal.addEventListener('click', (e) => {
+            if (e.target === withdrawGuideModal) {
+                closeWithdrawGuide();
+            }
+        });
+
+        // 社区红利功能
+        const communityBonusBtn = document.getElementById('communityBonusBtn');
+        const communityBonusModal = document.getElementById('communityBonusModal');
+        const communityBonusCloseBtn = document.getElementById('communityBonusCloseBtn');
+
+        function openCommunityBonus() {
+            communityBonusModal.classList.add('active');
+        }
+
+        function closeCommunityBonus() {
+            communityBonusModal.classList.remove('active');
+        }
+
+        communityBonusBtn.addEventListener('click', openCommunityBonus);
+        communityBonusCloseBtn.addEventListener('click', closeCommunityBonus);
+
+        // 点击模态框外部关闭社区红利
+        communityBonusModal.addEventListener('click', (e) => {
+            if (e.target === communityBonusModal) {
+                closeCommunityBonus();
+            }
+        });
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
