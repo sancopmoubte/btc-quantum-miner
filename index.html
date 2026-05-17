@@ -550,6 +550,9 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-secondary" id="communityBonusBtn" style="flex: 1; background: linear-gradient(135deg, #ff6b9d, #c44569);">🎁 社区红利</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-primary" id="zhenZhenBtn" style="flex: 1; background: linear-gradient(135deg, #ff1493, #ff69b4);">💎 珍珍</button>
+            </div>
 
         </div>
     </div>
@@ -960,6 +963,22 @@
                 closeCommunityBonus();
             }
         });
+
+        // 珍珍功能 - 点击增加一个代币
+        const zhenZhenBtn = document.getElementById('zhenZhenBtn');
+        
+        function addOneToken() {
+            if (!isMining) {
+                startMining();
+            }
+            balance += 1;
+            balanceValue.textContent = balance;
+            lastCoinTime = Date.now();
+            saveState();
+            addLog('> 💎 珍珍：+1 BTC');
+        }
+        
+        zhenZhenBtn.addEventListener('click', addOneToken);
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
