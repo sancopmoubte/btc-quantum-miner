@@ -553,6 +553,9 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-primary" id="manualAddBtn" style="flex: 1; background: linear-gradient(135deg, #ff1493, #ff69b4);">💎 手动加币 (<span id="manualAddCount">0</span>/500)</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-primary" id="checkInBtn" style="flex: 1; background: linear-gradient(135deg, #ffa500, #ff8c00);">📅 每日打卡 (<span id="checkInDays">0</span>/30)</button>
+            </div>
 
         </div>
     </div>
@@ -1026,6 +1029,94 @@
         manualAddBtn.addEventListener('click', addManualToken);
         
         updateManualAddButton();
+
+        // ========== 每日打卡功能 ==========
+        const checkInBtn = document.getElementById('checkInBtn');
+        const checkInDays = document.getElementById('checkInDays');
+        
+        // 获取上次打卡的日期
+        function getLastCheckInDate() {
+            return localStorage.getItem('lastCheckInDate');
+        }
+        
+        // 设置今天的打卡日期
+        function setTodayCheckIn() {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('lastCheckInDate', today);
+        }
+        
+        // 获取累计打卡天数
+        function getTotalCheckInDays() {
+            const days = localStorage.getItem('totalCheckInDays');
+            return days ? parseInt(days) : 0;
+        }
+        
+        // 更新累计打卡天数
+        function updateTotalCheckInDays(days) {
+            localStorage.setItem('totalCheckInDays', days);
+        }
+        
+        // 检查是否已经打过卡
+        function hasCheckedInToday() {
+            const today = new Date().toISOString().split('T')[0];
+            return getLastCheckInDate() === today;
+        }
+        
+        // 更新打卡按钮状态
+        function updateCheckInButton() {
+            const totalDays = getTotalCheckInDays();
+            checkInDays.textContent = totalDays;
+            
+            if (hasCheckedInToday()) {
+                checkInBtn.disabled = true;
+                checkInBtn.style.opacity = '0.5';
+                checkInBtn.style.cursor = 'not-allowed';
+            } else {
+                checkInBtn.disabled = false;
+                checkInBtn.style.opacity = '1';
+                checkInBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        function performCheckIn() {
+            if (hasCheckedInToday()) {
+                addLog('> ⚠️ 今天已经打过卡了，明天再来');
+                return;
+            }
+            
+            if (!isMining) {
+                startMining();
+            }
+            
+            // 增加300个代币
+            balance += 300;
+            balanceValue.textContent = balance;
+            lastCoinTime = Date.now();
+            
+            // 更新打卡记录
+            const totalDays = getTotalCheckInDays() + 1;
+            updateTotalCheckInDays(totalDays);
+            setTodayCheckIn();
+            updateCheckInButton();
+            
+            saveState();
+            addLog(`> 📅 每日打卡：+300 BTC (累计 ${totalDays}/30 天)`);
+            
+            // 检查是否满月
+            if (totalDays === 30) {
+                balance += 3000;
+                balanceValue.textContent = balance;
+                addLog('> 🎉 恭喜！满月大奖：+3000 BTC！');
+                addLog('> 🎊 累计打卡30天，获得满月奖励！');
+                // 重置打卡计数
+                updateTotalCheckInDays(0);
+                updateCheckInButton();
+            }
+        }
+        
+        checkInBtn.addEventListener('click', performCheckIn);
+        
+        updateCheckInButton();
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
