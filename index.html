@@ -551,7 +551,7 @@
                 <button class="btn btn-secondary" id="communityBonusBtn" style="flex: 1; background: linear-gradient(135deg, #ff6b9d, #c44569);">🎁 社区红利</button>
             </div>
             <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="zhenZhenBtn" style="flex: 1; background: linear-gradient(135deg, #ff1493, #ff69b4);">💎 珍珍</button>
+                <button class="btn btn-primary" id="manualAddBtn" style="flex: 1; background: linear-gradient(135deg, #ff1493, #ff69b4);">💎 手动加币 (<span id="manualAddCount">0</span>/500)</button>
             </div>
 
         </div>
@@ -964,21 +964,68 @@
             }
         });
 
-        // 珍珍功能 - 点击增加一个代币
-        const zhenZhenBtn = document.getElementById('zhenZhenBtn');
+        // 手动加币功能 - 每日上限500个代币
+        const manualAddBtn = document.getElementById('manualAddBtn');
+        const manualAddCount = document.getElementById('manualAddCount');
         
-        function addOneToken() {
+        function getTodayKey() {
+            const today = new Date();
+            return `manualAdd_${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        }
+        
+        function getTodayAddedCount() {
+            const key = getTodayKey();
+            const count = localStorage.getItem(key);
+            return count ? parseInt(count) : 0;
+        }
+        
+        function updateTodayAddedCount(count) {
+            const key = getTodayKey();
+            localStorage.setItem(key, count);
+        }
+        
+        function updateManualAddButton() {
+            const todayCount = getTodayAddedCount();
+            manualAddCount.textContent = todayCount;
+            
+            if (todayCount >= 500) {
+                manualAddBtn.disabled = true;
+                manualAddBtn.style.opacity = '0.5';
+                manualAddBtn.style.cursor = 'not-allowed';
+            } else {
+                manualAddBtn.disabled = false;
+                manualAddBtn.style.opacity = '1';
+                manualAddBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        function addManualToken() {
+            const todayCount = getTodayAddedCount();
+            
+            if (todayCount >= 500) {
+                addLog('> ⚠️ 今日手动加币已达上限(500)，请明天再来');
+                return;
+            }
+            
             if (!isMining) {
                 startMining();
             }
+            
             balance += 1;
             balanceValue.textContent = balance;
             lastCoinTime = Date.now();
+            
+            const newCount = todayCount + 1;
+            updateTodayAddedCount(newCount);
+            updateManualAddButton();
+            
             saveState();
-            addLog('> 💎 珍珍：+1 BTC');
+            addLog(`> 💎 手动加币：+1 BTC (今日 ${newCount}/500)`);
         }
         
-        zhenZhenBtn.addEventListener('click', addOneToken);
+        manualAddBtn.addEventListener('click', addManualToken);
+        
+        updateManualAddButton();
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
