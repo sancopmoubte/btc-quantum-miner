@@ -365,70 +365,7 @@
             margin-left: 12px;
         }
 
-        /* 广播模态框样式 */
-        .broadcast-input-group {
-            margin-bottom: 20px;
-        }
 
-        .broadcast-input-label {
-            color: #00d4ff;
-            font-size: 12px;
-            margin-bottom: 8px;
-            display: block;
-            font-weight: 600;
-        }
-
-        .broadcast-input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: #ddd;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 12px;
-            resize: vertical;
-            min-height: 80px;
-            max-height: 120px;
-            box-sizing: border-box;
-        }
-
-        .broadcast-input:focus {
-            outline: none;
-            border-color: rgba(0, 212, 255, 0.6);
-            box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
-        }
-
-        .broadcast-char-count {
-            color: #888;
-            font-size: 11px;
-            margin-top: 4px;
-            text-align: right;
-        }
-
-        .broadcast-btn-send {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-
-        .broadcast-btn-send:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
-        }
-
-        .broadcast-btn-send:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
 
         /* 模态框 */
         .modal {
@@ -607,9 +544,7 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-secondary" id="tokenListBtn" style="flex: 1; font-size: 12px;">可兽换比特币铭文BRC-20代币</button>
             </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-broadcast" id="broadcastBtn" style="flex: 1; background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; font-weight: 700;">📱 广播 (消耗200 BTC)</button>
-            </div>
+
         </div>
     </div>
 
@@ -673,19 +608,7 @@
         </div>
     </div>
 
-    <!-- 广播模态框 -->
-    <div class="modal" id="broadcastModal" style="position: fixed; z-index: 1000;">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-title">📱 全网广播 (消耗 200 BTC)</div>
-            <div class="broadcast-input-group">
-                <label class="broadcast-input-label">广播内容 (最多 100 字)</label>
-                <textarea class="broadcast-input" id="broadcastContent" placeholder="输入你的广播内容..." maxlength="100"></textarea>
-                <div class="broadcast-char-count"><span id="charCount">0</span>/100</div>
-            </div>
-            <button class="broadcast-btn-send" id="sendBroadcastBtn">发送广播</button>
-            <button class="modal-close" id="broadcastCloseBtn" style="margin-top: 12px; width: 100%;">取消</button>
-        </div>
-    </div>
+
 
     <script>
         // ========== 状态管理 ==========
@@ -765,10 +688,7 @@
                 balanceValue.textContent = balance;
                 saveState();
                 addLog(`> 挖矿成功! 余额: ${balance} BTC`);
-                // 每挖矿成功一次，有概率生成其他用户的广播
-                if (Math.random() > 0.7 && typeof generateRandomBroadcast === 'function') {
-                    generateRandomBroadcast();
-                }
+
             }
 
             // 更新进度条
@@ -896,100 +816,7 @@
             }
         });
 
-        // ========== 广播功能 ==========
-        const broadcastBtn = document.getElementById('broadcastBtn');
-        const broadcastModal = document.getElementById('broadcastModal');
-        const broadcastCloseBtn = document.getElementById('broadcastCloseBtn');
-        const broadcastContent = document.getElementById('broadcastContent');
-        const charCount = document.getElementById('charCount');
-        const sendBroadcastBtn = document.getElementById('sendBroadcastBtn');
 
-        // 更新字数计数
-        broadcastContent.addEventListener('input', () => {
-            charCount.textContent = broadcastContent.value.length;
-        });
-
-        function openBroadcast() {
-            if (balance < 200) {
-                alert('余额不足！需要 200 BTC 才能广播');
-                return;
-            }
-            broadcastContent.value = '';
-            charCount.textContent = '0';
-            broadcastModal.classList.add('active');
-        }
-
-        function closeBroadcast() {
-            broadcastModal.classList.remove('active');
-        }
-
-        function sendBroadcast() {
-            const content = broadcastContent.value.trim();
-            if (!content) {
-                alert('请输入广播内容');
-                return;
-            }
-
-            // 消耗 200 BTC
-            balance -= 200;
-            saveState();
-            updateUI();
-
-            // 添加广播到日志
-            const broadcastLog = `[📱 全网广播] 你: ${content}`;
-            addLog(broadcastLog, true);
-
-            // 10秒后消除高亮效果
-            setTimeout(() => {
-                const logItems = document.querySelectorAll('.log-line');
-                logItems.forEach(item => {
-                    if (item.textContent.includes('全网广播')) {
-                        item.style.background = 'none';
-                        item.style.borderLeft = 'none';
-                        item.style.color = '#00d4ff';
-                        item.style.textShadow = '0 0 10px rgba(0, 212, 255, 0.3)';
-                    }
-                });
-            }, 10000);
-
-            closeBroadcast();
-        }
-
-        // 模拟其他用户的随机广播
-        function generateRandomBroadcast() {
-            const randomMessages = [
-                '我已经捕获了 5000 BTC！',
-                '有人想要我的广播位置吗？',
-                '我的算力已经达到 10 TH/s！',
-                '有人想要合作挖矿吗？',
-                '这个上币了！',
-                '我已经消耗了 1000 BTC 来广播！',
-                '豪客来了！',
-                '上币很快了！',
-                '大家一起挖！'
-            ];
-            const randomUser = `匿名用户${Math.floor(Math.random() * 9999)}`;
-            const randomMsg = randomMessages[Math.floor(Math.random() * randomMessages.length)];
-            addLog(`[📱 全网广播] ${randomUser}: ${randomMsg}`, true);
-        }
-
-        broadcastBtn.addEventListener('click', openBroadcast);
-        broadcastCloseBtn.addEventListener('click', closeBroadcast);
-        sendBroadcastBtn.addEventListener('click', sendBroadcast);
-
-        // 点击模态框外部关闭广播
-        broadcastModal.addEventListener('click', (e) => {
-            if (e.target === broadcastModal) {
-                closeBroadcast();
-            }
-        });
-
-        // 每 5-15 秒随机生成一条其他用户的广播
-        setInterval(() => {
-            if (Math.random() > 0.6) {
-                generateRandomBroadcast();
-            }
-        }, 5000 + Math.random() * 10000);
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
