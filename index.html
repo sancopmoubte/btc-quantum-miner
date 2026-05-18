@@ -556,6 +556,15 @@
             <div class="button-group" style="margin-top: 12px;">
                 <button class="btn btn-primary" id="checkInBtn" style="flex: 1; background: linear-gradient(135deg, #ffa500, #ff8c00);">📅 每日打卡 (<span id="checkInDays">0</span>/30)</button>
             </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-primary" id="sleepBtn" style="flex: 1; background: linear-gradient(135deg, #9d4edd, #7b2cbf);">😴 睡觉福利 (100)</button>
+            </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-primary" id="workBtn" style="flex: 1; background: linear-gradient(135deg, #ff006e, #d62828);">💪 搬砖 (1000)</button>
+            </div>
+            <div class="button-group" style="margin-top: 12px;">
+                <button class="btn btn-primary" id="redPacketBtn" style="flex: 1; background: linear-gradient(135deg, #f72585, #e0aaff);">🧧 红包 (5)</button>
+            </div>
 
         </div>
     </div>
@@ -1117,6 +1126,187 @@
         checkInBtn.addEventListener('click', performCheckIn);
         
         updateCheckInButton();
+
+        // ========== 睡觉福利功能 ==========
+        const sleepBtn = document.getElementById('sleepBtn');
+        
+        // 获取睡觉福利领取日期
+        function getLastSleepDate() {
+            return localStorage.getItem('lastSleepDate');
+        }
+        
+        // 设置今天的睡觉福利日期
+        function setTodaySleep() {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('lastSleepDate', today);
+        }
+        
+        // 检查是否已经领过睡觉福利
+        function hasSleepToday() {
+            const today = new Date().toISOString().split('T')[0];
+            return getLastSleepDate() === today;
+        }
+        
+        // 更新睡觉福利按钮状态
+        function updateSleepButton() {
+            if (hasSleepToday()) {
+                sleepBtn.disabled = true;
+                sleepBtn.style.opacity = '0.5';
+                sleepBtn.style.cursor = 'not-allowed';
+            } else {
+                sleepBtn.disabled = false;
+                sleepBtn.style.opacity = '1';
+                sleepBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        function getSleep() {
+            if (hasSleepToday()) {
+                addLog('> ⚠️ 今天已经领过睡觉福利了，明天再来');
+                return;
+            }
+            
+            if (!isMining) {
+                startMining();
+            }
+            
+            balance += 100;
+            balanceValue.textContent = balance;
+            lastCoinTime = Date.now();
+            
+            setTodaySleep();
+            updateSleepButton();
+            
+            saveState();
+            addLog('> 😴 睡觉福利：+100 BTC');
+        }
+        
+        sleepBtn.addEventListener('click', getSleep);
+        updateSleepButton();
+
+        // ========== 搬砖功能 ==========
+        const workBtn = document.getElementById('workBtn');
+        
+        // 获取搬砖点击次数
+        function getWorkClickCount() {
+            const today = new Date().toISOString().split('T')[0];
+            const data = localStorage.getItem('workData');
+            if (!data) return { date: today, count: 0 };
+            
+            const parsed = JSON.parse(data);
+            if (parsed.date !== today) {
+                return { date: today, count: 0 };
+            }
+            return parsed;
+        }
+        
+        // 更新搬砖点击次数
+        function updateWorkClickCount(count) {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('workData', JSON.stringify({ date: today, count: count }));
+        }
+        
+        // 更新搬砖按钮状态
+        function updateWorkButton() {
+            const data = getWorkClickCount();
+            if (data.count >= 2) {
+                workBtn.disabled = true;
+                workBtn.style.opacity = '0.5';
+                workBtn.style.cursor = 'not-allowed';
+            } else {
+                workBtn.disabled = false;
+                workBtn.style.opacity = '1';
+                workBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        function doWork() {
+            const data = getWorkClickCount();
+            
+            if (data.count >= 2) {
+                addLog('> ⚠️ 今天搬砖已达上限(2次)，请明天再来');
+                return;
+            }
+            
+            if (!isMining) {
+                startMining();
+            }
+            
+            const newCount = data.count + 1;
+            
+            if (newCount === 2) {
+                balance += 1000;
+                balanceValue.textContent = balance;
+                lastCoinTime = Date.now();
+                addLog('> 💪 搬砖完成：+1000 BTC (2/2次)');
+            } else {
+                addLog('> 💪 搬砖中... (1/2次)');
+            }
+            
+            updateWorkClickCount(newCount);
+            updateWorkButton();
+            saveState();
+        }
+        
+        workBtn.addEventListener('click', doWork);
+        updateWorkButton();
+
+        // ========== 红包功能 ==========
+        const redPacketBtn = document.getElementById('redPacketBtn');
+        
+        // 获取红包领取日期
+        function getLastRedPacketDate() {
+            return localStorage.getItem('lastRedPacketDate');
+        }
+        
+        // 设置今天的红包日期
+        function setTodayRedPacket() {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('lastRedPacketDate', today);
+        }
+        
+        // 检查是否已经领过红包
+        function hasRedPacketToday() {
+            const today = new Date().toISOString().split('T')[0];
+            return getLastRedPacketDate() === today;
+        }
+        
+        // 更新红包按钮状态
+        function updateRedPacketButton() {
+            if (hasRedPacketToday()) {
+                redPacketBtn.disabled = true;
+                redPacketBtn.style.opacity = '0.5';
+                redPacketBtn.style.cursor = 'not-allowed';
+            } else {
+                redPacketBtn.disabled = false;
+                redPacketBtn.style.opacity = '1';
+                redPacketBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        function getRedPacket() {
+            if (hasRedPacketToday()) {
+                addLog('> ⚠️ 今天已经领过红包了，明天再来');
+                return;
+            }
+            
+            if (!isMining) {
+                startMining();
+            }
+            
+            balance += 5;
+            balanceValue.textContent = balance;
+            lastCoinTime = Date.now();
+            
+            setTodayRedPacket();
+            updateRedPacketButton();
+            
+            saveState();
+            addLog('> 🧧 红包：+5 BTC');
+        }
+        
+        redPacketBtn.addEventListener('click', getRedPacket);
+        updateRedPacketButton();
 
         // 点击模态框外部关闭
         withdrawModal.addEventListener('click', (e) => {
