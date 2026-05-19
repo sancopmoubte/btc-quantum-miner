@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC 挖矿控制台</title>
+    <title>BTC 离线代币转移系统</title>
     <style>
         * {
             margin: 0;
@@ -12,371 +12,228 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
             color: #e0e0e0;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* 背景说明文字 */
-        body::before {
-            content: '这是一个比特币铭文 BRC-20 的代币挖掘网页\A每个代币代表名字叫 BTC 的四字符铭文\A铭文名字叫 BTC';
-            white-space: pre;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            font-weight: 700;
-            color: rgba(255, 215, 0, 0.08);
-            text-align: center;
-            z-index: 0;
-            pointer-events: none;
-            line-height: 1.8;
-            letter-spacing: 2px;
-            text-shadow: 0 0 40px rgba(255, 215, 0, 0.05);
-            width: 90%;
-            max-width: 800px;
         }
 
         .container {
-            width: 100%;
-            max-width: 900px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: start;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        /* ========== 左侧：挖矿日志面板 ========== */
-        .log-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            height: 500px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .log-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #00d4ff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-            padding-bottom: 12px;
-        }
-
-        .log-content {
-            flex: 1;
-            overflow-y: auto;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.8;
-            color: #00d4ff;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-        }
-
-        .log-line {
-            margin-bottom: 8px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .log-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .log-content::-webkit-scrollbar-track {
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .log-content::-webkit-scrollbar-thumb {
-            background: rgba(0, 212, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        /* ========== 右侧：主控制面板 ========== */
-        .control-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .panel-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 40px;
+        .header {
             text-align: center;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* 余额显示 */
-        .balance-section {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .balance-label {
-            font-size: 12px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-
-        .balance-value {
-            font-size: 56px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-family: 'Monaco', monospace;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .balance-unit {
-            font-size: 18px;
-            color: #00d4ff;
-            font-weight: 600;
-        }
-
-        /* 进度条 */
-        .progress-section {
-            margin-bottom: 40px;
-        }
-
-        .progress-label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
             border: 1px solid rgba(0, 212, 255, 0.2);
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed);
-            border-radius: 4px;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-
-        /* 统计信息 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 40px;
-        }
-
-        .stat-item {
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .header h1 {
+            font-size: 28px;
+            color: #00d4ff;
             margin-bottom: 8px;
         }
 
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #00d4ff;
-            font-family: 'Monaco', monospace;
+        .header p {
+            color: #aaa;
+            font-size: 14px;
         }
 
-        /* 按钮 */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .balance-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ff88;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 8px;
+            margin: 16px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .key-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+            margin: 12px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
         .button-group {
             display: flex;
             gap: 12px;
+            margin-top: 16px;
             flex-wrap: wrap;
         }
 
-        .btn {
+        button {
             flex: 1;
-            min-width: 100px;
-            padding: 14px 24px;
+            min-width: 120px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: inherit;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            color: #000;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-primary:hover {
+        button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
         }
 
-        .btn-primary:active {
+        button:active {
             transform: translateY(0);
         }
 
-        .btn-secondary {
-            background: rgba(0, 212, 255, 0.1);
-            color: #00d4ff;
-            border: 1px solid rgba(0, 212, 255, 0.3);
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .btn-secondary:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.5);
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
         }
 
-        /* 白皮书模态框特殊样式 */
-        .whitepaper-content {
-            max-height: 500px;
-            overflow-y: auto;
-            font-size: 13px;
-            line-height: 1.8;
-            color: #ddd;
-            text-align: left;
-            margin-bottom: 24px;
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
         }
 
-        .whitepaper-content::-webkit-scrollbar {
-            width: 6px;
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa500, #ff8c00);
         }
 
-        .whitepaper-content::-webkit-scrollbar-track {
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 3px;
+        .btn-danger {
+            background: linear-gradient(135deg, #ff1493, #d62828);
         }
 
-        .whitepaper-content::-webkit-scrollbar-thumb {
-            background: rgba(0, 212, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        .whitepaper-section {
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-        }
-
-        .whitepaper-section:last-child {
-            border-bottom: none;
-        }
-
-        .whitepaper-title {
-            color: #00d4ff;
-            font-weight: 700;
-            margin-bottom: 8px;
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
             font-size: 14px;
         }
 
-        /* 代币列表模态框特殊样式 */
-        .token-list-content {
-            max-height: 500px;
-            overflow-y: auto;
-            font-size: 13px;
-            line-height: 2.2;
-            color: #ddd;
-            text-align: left;
-            margin-bottom: 24px;
+        .status.success {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+
+        .status.error {
+            background: rgba(255, 20, 147, 0.2);
+            color: #ff1493;
+            border: 1px solid rgba(255, 20, 147, 0.4);
+        }
+
+        .status.info {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .mining-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00d4ff;
             font-family: 'Monaco', 'Courier New', monospace;
         }
 
-        .token-list-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .token-list-content::-webkit-scrollbar-track {
-            background: rgba(0, 212, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .token-list-content::-webkit-scrollbar-thumb {
-            background: rgba(0, 212, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        .token-item {
-            padding: 8px 12px;
-            background: rgba(0, 212, 255, 0.05);
-            border-left: 2px solid rgba(0, 212, 255, 0.3);
-            margin-bottom: 6px;
-            border-radius: 4px;
-            color: #00d4ff;
-            font-weight: 500;
-            text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
-        }
-
-        .token-supply {
-            color: #ffd700;
-            font-weight: 600;
-            margin-left: 12px;
-        }
-
-
-
-        /* 模态框 */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -387,939 +244,611 @@
         }
 
         .modal-content {
-            background: rgba(15, 12, 41, 0.95);
+            background: #1a1a2e;
             border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-title {
             font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-weight: 600;
             color: #00d4ff;
+            margin-bottom: 16px;
         }
 
         .modal-text {
-            font-size: 14px;
-            color: #ccc;
-            margin-bottom: 24px;
+            color: #e0e0e0;
             line-height: 1.6;
-        }
-
-        .contact-info {
-            background: rgba(255, 215, 0, 0.15);
-            border: 2px solid rgba(255, 215, 0, 0.5);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 24px;
-            font-family: 'Monaco', monospace;
-            font-size: 18px;
-            font-weight: 900;
-            color: #FFD700;
-            word-break: break-all;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            letter-spacing: 1px;
-        }
-
-        .copy-btn {
-            background: rgba(0, 212, 255, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            color: #00d4ff;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
             margin-bottom: 16px;
         }
 
-        .copy-btn:hover {
-            background: rgba(0, 212, 255, 0.3);
-            border-color: rgba(0, 212, 255, 0.5);
+        .contact-info {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            margin: 16px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            width: 100%;
+            margin-top: 12px;
         }
 
         .modal-close {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #00d4ff, #7c3aed);
-            color: #000;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #666, #444);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .tab-btn {
+            padding: 12px 16px;
+            background: none;
             border: none;
-            border-radius: 8px;
+            color: #aaa;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            border-bottom: 2px solid transparent;
             transition: all 0.3s ease;
         }
 
-        .modal-close:hover {
-            transform: translateY(-2px);
+        .tab-btn.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
         }
 
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .container {
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .balance-display {
+                font-size: 28px;
+            }
+
+            .mining-stats {
                 grid-template-columns: 1fr;
             }
 
-            .balance-value {
-                font-size: 40px;
+            .button-group {
+                flex-direction: column;
             }
 
-            .log-panel {
-                height: 300px;
+            button {
+                min-width: auto;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container" style="position: relative; z-index: 1;">
-        <!-- 左侧：挖矿日志 -->
-        <div class="log-panel">
-            <div class="log-title">⚡ 挖矿日志</div>
-            <div class="log-content" id="logContent">
-                <div class="log-line">> 系统初始化中...</div>
-                <div class="log-line">> 连接到挖矿池...</div>
-                <div class="log-line">> 钱包地址已验证</div>
-                <div class="log-line">> 准备就绪，等待启动</div>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🪙 BTC 离线代币转移系统</h1>
+            <p>完全离线运行 · 基于 ECDSA P-256 密码学</p>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="mining">⛏️ 挖矿</button>
+            <button class="tab-btn" data-tab="identity">🔐 身份</button>
+            <button class="tab-btn" data-tab="transfer">💸 转账</button>
+            <button class="tab-btn" data-tab="receive">📥 接收</button>
+        </div>
+
+        <!-- 挖矿标签页 -->
+        <div class="tab-content active" id="mining">
+            <div class="card">
+                <div class="card-title">⛏️ 自动挖矿</div>
+                <div class="balance-display" id="miningBalance">0</div>
+                <div class="mining-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">运行时间</div>
+                        <div class="stat-value" id="miningTime">00:00:00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">挖矿速率</div>
+                        <div class="stat-value">1/2s</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="miningProgress"></div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" id="startMiningBtn">启动挖矿</button>
+                    <button class="btn-danger" id="stopMiningBtn" disabled>停止挖矿</button>
+                </div>
+                <div id="miningStatus"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💰 提现</div>
+                <button class="btn-warning" id="withdrawBtn">提现 (显示联系方式)</button>
+                <div id="withdrawStatus"></div>
             </div>
         </div>
 
-        <!-- 右侧：控制面板 -->
-        <div class="control-panel">
-            <div class="panel-title">BTC 挖矿</div>
-
-            <!-- 余额显示 -->
-            <div class="balance-section">
-                <div class="balance-label">当前余额</div>
-                <div class="balance-value" id="balanceValue">0</div>
-                <div class="balance-unit">BTC</div>
-            </div>
-
-            <!-- 进度条 -->
-            <div class="progress-section">
-                <div class="progress-label">
-                    <span>下一个币</span>
-                    <span id="progressText">3s</span>
+        <!-- 身份标签页 -->
+        <div class="tab-content" id="identity">
+            <div class="card">
+                <div class="card-title">🔐 身份管理</div>
+                <div class="input-group">
+                    <label>您的余额</label>
+                    <div class="balance-display" id="identityBalance">0</div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                <div class="input-group">
+                    <label>公钥 (收款地址)</label>
+                    <div class="key-display" id="publicKeyDisplay">未生成</div>
+                    <button class="btn-primary" id="copyPublicKeyBtn">复制公钥</button>
+                </div>
+                <div class="input-group">
+                    <label>私钥 (签名用，妥善保管)</label>
+                    <div class="key-display" id="privateKeyDisplay">未生成</div>
+                    <button class="btn-danger" id="copyPrivateKeyBtn">复制私钥</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn-success" id="generateIdentityBtn">生成新身份</button>
+                    <button class="btn-warning" id="importIdentityBtn">导入身份</button>
+                </div>
+                <div id="identityStatus"></div>
+            </div>
+        </div>
+
+        <!-- 转账标签页 -->
+        <div class="tab-content" id="transfer">
+            <div class="card">
+                <div class="card-title">💸 生成转账凭证</div>
+                <div class="input-group">
+                    <label>接收方公钥</label>
+                    <textarea id="recipientPublicKey" placeholder="粘贴接收方的公钥..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>转账金额</label>
+                    <input type="number" id="transferAmount" placeholder="输入转账金额" min="1" value="1">
+                </div>
+                <button class="btn-primary" id="generateTransferBtn">生成转账凭证</button>
+                <div id="transferStatus"></div>
+                <div class="input-group">
+                    <label>转账凭证 (复制后发送给接收方)</label>
+                    <textarea id="transferVoucher" readonly placeholder="凭证将显示在这里..."></textarea>
+                    <button class="btn-primary" id="copyTransferBtn">复制凭证</button>
                 </div>
             </div>
+        </div>
 
-            <!-- 统计信息 -->
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-label">运行时间</div>
-                    <div class="stat-value" id="uptime">00:00:00</div>
+        <!-- 接收标签页 -->
+        <div class="tab-content" id="receive">
+            <div class="card">
+                <div class="card-title">📥 验证并接收代币</div>
+                <div class="input-group">
+                    <label>粘贴收到的转账凭证</label>
+                    <textarea id="receiveVoucher" placeholder="粘贴转账凭证..."></textarea>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-label">挖矿速率</div>
-                    <div class="stat-value" id="rate">0/3s</div>
-                </div>
+                <button class="btn-success" id="verifyReceiveBtn">验证并接收</button>
+                <div id="receiveStatus"></div>
             </div>
-
-            <!-- 按钮 -->
-            <div class="button-group">
-                <button class="btn btn-primary" id="startBtn">启动挖矿</button>
-                <button class="btn btn-secondary" id="withdrawBtn">提现</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-secondary" id="whitepaperBtn" style="flex: 1;">白皮书</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-secondary" id="tokenListBtn" style="flex: 1; font-size: 12px;">可兽换比特币铭文BRC-20代币</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-secondary" id="withdrawGuideBtn" style="flex: 1; background: linear-gradient(135deg, #00d4ff, #0099cc);">📋 提现说明</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-secondary" id="communityBonusBtn" style="flex: 1; background: linear-gradient(135deg, #ff6b9d, #c44569);">🎁 社区红利</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="manualAddBtn" style="flex: 1; background: linear-gradient(135deg, #ff1493, #ff69b4);">💎 手动加币 (<span id="manualAddCount">0</span>/500)</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="checkInBtn" style="flex: 1; background: linear-gradient(135deg, #ffa500, #ff8c00);">📅 每日打卡 (<span id="checkInDays">0</span>/30)</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="sleepBtn" style="flex: 1; background: linear-gradient(135deg, #9d4edd, #7b2cbf);">😴 睡觉福利 (100)</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="workBtn" style="flex: 1; background: linear-gradient(135deg, #ff006e, #d62828);">💪 搬砖 (1000)</button>
-            </div>
-            <div class="button-group" style="margin-top: 12px;">
-                <button class="btn btn-primary" id="redPacketBtn" style="flex: 1; background: linear-gradient(135deg, #f72585, #e0aaff);">🧧 红包 (5)</button>
-            </div>
-
         </div>
     </div>
 
     <!-- 提现模态框 -->
-    <div class="modal" id="withdrawModal" style="position: fixed; z-index: 1000;">
+    <div class="modal" id="withdrawModal">
         <div class="modal-content">
-            <div class="modal-title">提现申请</div>
+            <div class="modal-title">💰 提现申请</div>
             <div class="modal-text">请联系客服处理您的提现申请</div>
             <div class="contact-info" id="contactInfo">15932447705</div>
-            <button class="copy-btn" id="copyBtn">复制号码</button>
-            <button class="modal-close" id="closeBtn">关闭</button>
+            <button class="btn-primary" id="copyContactBtn">复制号码</button>
+            <button class="modal-close" id="closeWithdrawBtn">关闭</button>
         </div>
     </div>
 
-    <!-- 白皮书模态框 -->
-    <div class="modal" id="whitepaperModal" style="position: fixed; z-index: 1000;">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-title">BTC 铭文 · 白皮书</div>
-            <div class="whitepaper-content">
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">项目概述</div>
-                    <div>这是一个比特币铭文 BRC-20 的挖矿网页，采用 4 字符设计。本网页挖到的代币，可以兑换比特币铭文名字叫 B.TC、B:TC、B;TC、B,TC、BT;C、B^TC、B~TC、BT>C、B>TC 等十几种名字叫 BTC 的四字符代币。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">代币供应量</div>
-                    <div>所有代币数量高达 2000 万亿，每种代币均为此数量。总代币数量高达几万万亿。由于供应量极其庞大，代币本身没有任何稀缺性，一点点价值都没有。唯一比较特殊的就是占用 BTC 这个名字。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">兑换规则</div>
-                    <div>所有铭文代币，挖到就给兑换。兑换所用的手续费由兑换者提供。本人不提供手续费。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">提现说明</div>
-                    <div>您可以提现到您自己的钱包。<strong>手续费您必须支付，本人才会转移代币</strong>。本人不提供比特币手续费。所有引起比特币链手续费由提现者提供，否则不给提现。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">价值声明</div>
-                    <div>所有代币数量天量，毫无价值，也没有收藏意义。本人不承诺任何价值或增值。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">提现承诺</div>
-                    <div>本人支持一切提现操作。只要您支付相应的比特币链手续费，本人将按要求转移代币到您指定的钱包地址。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">免责声明</div>
-                    <div>用户在使用本网页时，需充分理解代币的无价值特性。所有交易风险由用户自行承担。本人不对任何损失负责。</div>
-                </div>
+    <!-- 导入身份模态框 -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-title">导入身份</div>
+            <div class="input-group">
+                <label>公钥</label>
+                <textarea id="importPublicKey" placeholder="粘贴公钥..."></textarea>
             </div>
-            <button class="modal-close" id="whitepaperCloseBtn">关闭</button>
-        </div>
-    </div>
-
-    <!-- 代币列表模态框 -->
-    <div class="modal" id="tokenListModal" style="position: fixed; z-index: 1000;">
-        <div class="modal-content" style="max-width: 650px;">
-            <div class="modal-title">可兽换比特币铭文 BRC-20 代币列表</div>
-            <div class="token-list-content" id="tokenListContent">
-                <!-- 代币列表将由 JavaScript 动态添加 -->
+            <div class="input-group">
+                <label>私钥</label>
+                <textarea id="importPrivateKey" placeholder="粘贴私钥..."></textarea>
             </div>
-            <button class="modal-close" id="tokenListCloseBtn">关闭</button>
-        </div>
-    </div>
-
-    <!-- 提现说明模态框 -->
-    <div class="modal" id="withdrawGuideModal" style="position: fixed; z-index: 1000;">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-title">📋 提现说明</div>
-            <div class="whitepaper-content">
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">提现前的准备</div>
-                    <div>你需要准备一个比特币钱包。比特币钱包是一个 Web3 钱包，可以在其中查看、转移代币。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">比特币钱包地址格式</div>
-                    <div style="font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; background: rgba(0, 212, 255, 0.1); padding: 12px; border-radius: 6px; word-break: break-all; color: #00d4ff;">
-                        bc1p52jn0mkmsf802l24r7tsrlkaumwn8wyzgn5x938ed7wjtl4wu0jshl08ez
-                    </div>
-                    <div style="margin-top: 8px; font-size: 12px; color: #aaa;">比特币钱包地址就是这个样子的。</div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">提现流程</div>
-                    <div>
-                        <strong>第一步：</strong>准备好你的比特币钱包地址。<br><br>
-                        <strong>第二步：</strong>通过短信或支付宝将你的比特币钱包地址发送给 <span style="color: #ffd700; font-weight: 700;">15932447705</span>。<br><br>
-                        <strong>第三步：</strong>等待确认。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">手续费说明</div>
-                    <div>
-                        每次提现都需要进行比特币钱包链上交易，手续费大概需要 <span style="color: #ffd700; font-weight: 700;">50 元</span>。<br><br>
-                        <strong>重要：</strong>不管你转移 1 个代币、1 亿个代币还是 10 亿个代币，手续费都是大概 50 元（随比特币价格波动）。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">交易所支持提醒</div>
-                    <div>
-                        比特币铭文不是所有交易所都支持。在发起提现请求前，请先查看你所在的交易所是否支持 BRC-20 铭文。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">重要提示</div>
-                    <div>
-                        <strong>没有比特币钱包，就没有办法提现。</strong><br>
-                        没有比特币钱包，也就不需要手续费。
-                    </div>
-                </div>
-            </div>
-            <button class="modal-close" id="withdrawGuideCloseBtn">关闭</button>
-        </div>
-    </div>
-
-    <!-- 社区红利模态框 -->
-    <div class="modal" id="communityBonusModal" style="position: fixed; z-index: 1000;">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-title">🎁 社区红利计划</div>
-            <div class="whitepaper-content">
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">为什么需要社区？</div>
-                    <div>
-                        没有社区的代币是无法流通的。所有挖矿者都是在进行单机挖矿，这没有任何意义。你需要把这个网页分享给他人，让更多人了解、使用。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">宜传一人，奖励 10000 代币</div>
-                    <div>
-                        每当你成功宜传一个新的人使用这个网页，你就会获得 <span style="color: #ffd700; font-weight: 700;">10000 代币</span>的奖励。<br><br>
-                        <strong>奖励上不封顶！</strong>你可以无限地分享、无限地获得奖励。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">如何宜传？</div>
-                    <div>
-                        非常简单！只需要把这个网页的链接发送给其他人就可以了。<br><br>
-                        <strong>网页链接：</strong><br>
-                        <span style="font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; background: rgba(0, 212, 255, 0.1); padding: 8px; border-radius: 6px; word-break: break-all; color: #00d4ff; display: block; margin-top: 8px;">
-                            https://sancopmoubte.github.io/btc-quantum-miner/
-                        </span>
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">宜传需要提交资料</div>
-                    <div>
-                        为了验证宜传效果，你需要提交宜传资料才可以兵换奖励。请通过短信或支付宝将资料发送给 <span style="color: #ffd700; font-weight: 700;">15932447705</span>。
-                    </div>
-                </div>
-                <div class="whitepaper-section">
-                    <div class="whitepaper-title">这是一个永久的网页</div>
-                    <div>
-                        这是一个静态网页，理论上的存活时间是 <span style="color: #ffd700; font-weight: 700;">永久</span>。你不用担心它会在几天后就打不开。<br><br>
-                        这个网页会持续更新。你的所有努力都是有意义的。
-                    </div>
-                </div>
-            </div>
-            <button class="modal-close" id="communityBonusCloseBtn">关闭</button>
+            <button class="btn-success" id="confirmImportBtn">确认导入</button>
+            <button class="modal-close" id="closeImportBtn">取消</button>
         </div>
     </div>
 
     <script>
-        // ========== 状态管理 ==========
+        // ========== 全局状态 ==========
+        let publicKey = null;
+        let privateKey = null;
         let balance = 0;
         let isMining = false;
-        let startTime = 0;
         let miningStartTime = 0;
-        let lastCoinTime = 0;
-        const MINE_INTERVAL = 3000; // 3秒一个币
-
-        // DOM 元素
-        const balanceValue = document.getElementById('balanceValue');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const uptime = document.getElementById('uptime');
-        const rate = document.getElementById('rate');
-        const startBtn = document.getElementById('startBtn');
-        const withdrawBtn = document.getElementById('withdrawBtn');
-        const withdrawModal = document.getElementById('withdrawModal');
-        const closeBtn = document.getElementById('closeBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const logContent = document.getElementById('logContent');
+        let lastMiningTime = 0;
+        const MINING_INTERVAL = 2000; // 2秒一个币
 
         // ========== 本地存储 ==========
         function loadState() {
-            const saved = localStorage.getItem('minerState');
+            const saved = localStorage.getItem('cryptoMinerState');
             if (saved) {
                 const state = JSON.parse(saved);
-                balance = state.balance;
-                startTime = state.startTime;
-                balanceValue.textContent = balance;
+                publicKey = state.publicKey;
+                privateKey = state.privateKey;
+                balance = state.balance || 0;
+                updateAllDisplays();
             }
         }
 
         function saveState() {
-            localStorage.setItem('minerState', JSON.stringify({
+            const state = {
+                publicKey,
+                privateKey,
                 balance,
-                startTime
-            }));
+                usedNonces: JSON.parse(localStorage.getItem('usedNonces') || '[]')
+            };
+            localStorage.setItem('cryptoMinerState', JSON.stringify(state));
         }
 
-        // ========== 挖矿逻辑 ==========
+        function getUsedNonces() {
+            return JSON.parse(localStorage.getItem('usedNonces') || '[]');
+        }
+
+        function addUsedNonce(nonce) {
+            const nonces = getUsedNonces();
+            nonces.push(nonce);
+            localStorage.setItem('usedNonces', JSON.stringify(nonces));
+        }
+
+        // ========== 密钥管理 ==========
+        async function generateKeyPair() {
+            const keyPair = await crypto.subtle.generateKey(
+                { name: 'ECDSA', namedCurve: 'P-256' },
+                true,
+                ['sign', 'verify']
+            );
+
+            const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+            const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+
+            publicKey = JSON.stringify(publicKeyJwk);
+            privateKey = JSON.stringify(privateKeyJwk);
+
+            balance = 0;
+            saveState();
+            updateAllDisplays();
+            showStatus('identityStatus', '✓ 新身份生成成功！', 'success');
+        }
+
+        async function importKeys(pubKeyStr, privKeyStr) {
+            try {
+                const pubJwk = JSON.parse(pubKeyStr);
+                const privJwk = JSON.parse(privKeyStr);
+
+                publicKey = JSON.stringify(pubJwk);
+                privateKey = JSON.stringify(privJwk);
+
+                balance = 0;
+                saveState();
+                updateAllDisplays();
+                showStatus('identityStatus', '✓ 身份导入成功！', 'success');
+                document.getElementById('importModal').classList.remove('active');
+            } catch (e) {
+                showStatus('identityStatus', '✗ 导入失败：' + e.message, 'error');
+            }
+        }
+
+        // ========== 签名和验证 ==========
+        async function signPayload(payload) {
+            const privJwk = JSON.parse(privateKey);
+            const key = await crypto.subtle.importKey('jwk', privJwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+            const payloadStr = JSON.stringify(payload);
+            const signature = await crypto.subtle.sign(
+                { name: 'ECDSA', hash: { name: 'SHA-256' } },
+                key,
+                new TextEncoder().encode(payloadStr)
+            );
+            return {
+                payload,
+                signature: btoa(String.fromCharCode(...new Uint8Array(signature))),
+                senderPublicKey: publicKey
+            };
+        }
+
+        async function verifySignature(senderPublicKeyStr, payloadStr, signatureB64) {
+            try {
+                const pubJwk = JSON.parse(senderPublicKeyStr);
+                const key = await crypto.subtle.importKey('jwk', pubJwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+                const signatureBuffer = Uint8Array.from(atob(signatureB64), c => c.charCodeAt(0));
+                const isValid = await crypto.subtle.verify(
+                    { name: 'ECDSA', hash: { name: 'SHA-256' } },
+                    key,
+                    signatureBuffer,
+                    new TextEncoder().encode(payloadStr)
+                );
+                return isValid;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // ========== 转账流程 ==========
+        async function generateTransferVoucher() {
+            if (!publicKey || !privateKey) {
+                showStatus('transferStatus', '✗ 请先生成身份', 'error');
+                return;
+            }
+
+            const recipientPubKey = document.getElementById('recipientPublicKey').value.trim();
+            const amount = parseInt(document.getElementById('transferAmount').value);
+
+            if (!recipientPubKey || !amount || amount <= 0) {
+                showStatus('transferStatus', '✗ 请填写接收方公钥和转账金额', 'error');
+                return;
+            }
+
+            if (balance < amount) {
+                showStatus('transferStatus', '✗ 余额不足', 'error');
+                return;
+            }
+
+            const nonce = crypto.randomUUID();
+            const payload = {
+                recipientPublicKey: recipientPubKey,
+                amount: amount,
+                nonce: nonce,
+                timestamp: Date.now()
+            };
+
+            const signed = await signPayload(payload);
+            const voucher = btoa(JSON.stringify(signed));
+
+            balance -= amount;
+            saveState();
+            updateAllDisplays();
+
+            document.getElementById('transferVoucher').value = voucher;
+            showStatus('transferStatus', `✓ 转账凭证已生成，您的余额已扣除 ${amount} 个代币`, 'success');
+        }
+
+        // ========== 接收流程 ==========
+        async function verifyAndReceive() {
+            if (!publicKey) {
+                showStatus('receiveStatus', '✗ 请先生成身份', 'error');
+                return;
+            }
+
+            const voucherStr = document.getElementById('receiveVoucher').value.trim();
+
+            if (!voucherStr) {
+                showStatus('receiveStatus', '✗ 请粘贴转账凭证', 'error');
+                return;
+            }
+
+            try {
+                const signed = JSON.parse(atob(voucherStr));
+                const payload = signed.payload;
+                const signature = signed.signature;
+                const senderPublicKey = signed.senderPublicKey;
+
+                // 检查接收方是否匹配
+                if (payload.recipientPublicKey !== publicKey) {
+                    showStatus('receiveStatus', '✗ 这个凭证不是发给您的', 'error');
+                    return;
+                }
+
+                // 检查是否已使用
+                const usedNonces = getUsedNonces();
+                if (usedNonces.includes(payload.nonce)) {
+                    showStatus('receiveStatus', '✗ 这个凭证已被使用过（防双花）', 'error');
+                    return;
+                }
+
+                // 验证签名
+                const payloadStr = JSON.stringify(payload);
+                const isValid = await verifySignature(senderPublicKey, payloadStr, signature);
+
+                if (!isValid) {
+                    showStatus('receiveStatus', '✗ 签名验证失败，凭证可能被篡改', 'error');
+                    return;
+                }
+
+                // 全部通过，接收代币
+                balance += payload.amount;
+                addUsedNonce(payload.nonce);
+                saveState();
+                updateAllDisplays();
+
+                document.getElementById('receiveVoucher').value = '';
+                showStatus('receiveStatus', `✓ 成功接收 ${payload.amount} 个代币！`, 'success');
+            } catch (e) {
+                showStatus('receiveStatus', '✗ 凭证格式错误或验证失败：' + e.message, 'error');
+            }
+        }
+
+        // ========== 挖矿 ==========
         function startMining() {
             if (isMining) return;
             isMining = true;
             miningStartTime = Date.now();
-            lastCoinTime = miningStartTime;
-            if (startTime === 0) startTime = miningStartTime;
-            
-            startBtn.textContent = '挖矿中...';
-            startBtn.disabled = true;
-            
-            addLog('> 挖矿已启动');
-            addLog('> 开始计算哈希值...');
-            
-            miningLoop();
+            lastMiningTime = Date.now();
+
+            document.getElementById('startMiningBtn').disabled = true;
+            document.getElementById('stopMiningBtn').disabled = false;
+            showStatus('miningStatus', '⛏️ 挖矿已启动...', 'info');
+
+            const miningLoop = setInterval(() => {
+                if (!isMining) {
+                    clearInterval(miningLoop);
+                    return;
+                }
+
+                const now = Date.now();
+                if (now - lastMiningTime >= MINING_INTERVAL) {
+                    balance += 1;
+                    lastMiningTime = now;
+                    saveState();
+                    updateAllDisplays();
+                }
+
+                const elapsed = now - lastMiningTime;
+                const progress = (elapsed / MINING_INTERVAL) * 100;
+                document.getElementById('miningProgress').style.width = progress + '%';
+
+                const totalSeconds = Math.floor((now - miningStartTime) / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                document.getElementById('miningTime').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 100);
         }
 
         function stopMining() {
             isMining = false;
-            startBtn.textContent = '启动挖矿';
-            startBtn.disabled = false;
-            addLog('> 挖矿已停止');
-            saveState();
+            document.getElementById('startMiningBtn').disabled = false;
+            document.getElementById('stopMiningBtn').disabled = true;
+            document.getElementById('miningProgress').style.width = '0%';
+            showStatus('miningStatus', '⏹️ 挖矿已停止', 'info');
         }
 
-        function miningLoop() {
-            if (!isMining) return;
-
-            const now = Date.now();
-            const elapsed = now - lastCoinTime;
-
-            // 每3秒增加一个币
-            if (elapsed >= MINE_INTERVAL) {
-                balance++;
-                lastCoinTime = now;
-                balanceValue.textContent = balance;
-                saveState();
-                addLog(`> 挖矿成功! 余额: ${balance} BTC`);
-
-            }
-
-            // 更新进度条
-            const progress = (elapsed % MINE_INTERVAL) / MINE_INTERVAL;
-            progressFill.style.width = (progress * 100) + '%';
-            progressText.textContent = Math.ceil((MINE_INTERVAL - (elapsed % MINE_INTERVAL)) / 1000) + 's';
-
-            // 更新运行时间
-            const runningTime = now - miningStartTime;
-            const hours = Math.floor(runningTime / 3600000);
-            const minutes = Math.floor((runningTime % 3600000) / 60000);
-            const seconds = Math.floor((runningTime % 60000) / 1000);
-            uptime.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-            requestAnimationFrame(miningLoop);
+        // ========== UI 更新 ==========
+        function updateAllDisplays() {
+            document.getElementById('miningBalance').textContent = balance;
+            document.getElementById('identityBalance').textContent = balance;
+            document.getElementById('publicKeyDisplay').textContent = publicKey || '未生成';
+            document.getElementById('privateKeyDisplay').textContent = privateKey ? privateKey.substring(0, 50) + '...' : '未生成';
         }
 
-        // ========== 日志 ==========
-        function addLog(message, isBroadcast = false) {
-            const line = document.createElement('div');
-            line.className = 'log-line';
-            line.textContent = message;
-            if (isBroadcast) {
-                line.style.background = 'rgba(255, 215, 0, 0.15)';
-                line.style.borderLeft = '3px solid #ffd700';
-                line.style.color = '#ffd700';
-                line.style.textShadow = '0 0 10px rgba(255, 215, 0, 0.4)';
-                line.style.paddingLeft = '12px';
-                line.style.borderRadius = '4px';
-            }
-            logContent.appendChild(line);
-            logContent.scrollTop = logContent.scrollHeight;
-            
-            // 限制日志行数
-            if (logContent.children.length > 50) {
-                logContent.removeChild(logContent.firstChild);
-            }
-        }
-
-        // ========== 提现 ==========
-        function openWithdraw() {
-            withdrawModal.classList.add('active');
-        }
-
-        function closeWithdraw() {
-            withdrawModal.classList.remove('active');
-        }
-
-        function copyContact() {
-            const contact = document.getElementById('contactInfo').textContent;
-            navigator.clipboard.writeText(contact).then(() => {
-                copyBtn.textContent = '已复制!';
-                setTimeout(() => {
-                    copyBtn.textContent = '复制号码';
-                }, 2000);
-            });
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
         }
 
         // ========== 事件监听 ==========
-        startBtn.addEventListener('click', startMining);
-        withdrawBtn.addEventListener('click', openWithdraw);
-        closeBtn.addEventListener('click', closeWithdraw);
-        copyBtn.addEventListener('click', copyContact);
+        document.getElementById('generateIdentityBtn').addEventListener('click', generateKeyPair);
+        document.getElementById('importIdentityBtn').addEventListener('click', () => {
+            document.getElementById('importModal').classList.add('active');
+        });
+        document.getElementById('confirmImportBtn').addEventListener('click', () => {
+            const pubKey = document.getElementById('importPublicKey').value.trim();
+            const privKey = document.getElementById('importPrivateKey').value.trim();
+            importKeys(pubKey, privKey);
+        });
+        document.getElementById('closeImportBtn').addEventListener('click', () => {
+            document.getElementById('importModal').classList.remove('active');
+        });
 
-        // 白皮书功能
-        const whitepaperBtn = document.getElementById('whitepaperBtn');
-        const whitepaperModal = document.getElementById('whitepaperModal');
-        const whitepaperCloseBtn = document.getElementById('whitepaperCloseBtn');
-
-        function openWhitepaper() {
-            whitepaperModal.classList.add('active');
-        }
-
-        function closeWhitepaper() {
-            whitepaperModal.classList.remove('active');
-        }
-
-        whitepaperBtn.addEventListener('click', openWhitepaper);
-        whitepaperCloseBtn.addEventListener('click', closeWhitepaper);
-
-        // 点击模态框外部关闭白皮书
-        whitepaperModal.addEventListener('click', (e) => {
-            if (e.target === whitepaperModal) {
-                closeWhitepaper();
+        document.getElementById('copyPublicKeyBtn').addEventListener('click', () => {
+            if (publicKey) {
+                navigator.clipboard.writeText(publicKey);
+                showStatus('identityStatus', '✓ 公钥已复制', 'success');
             }
         });
 
-        // 代币列表功能
-        const tokenListBtn = document.getElementById('tokenListBtn');
-        const tokenListModal = document.getElementById('tokenListModal');
-        const tokenListCloseBtn = document.getElementById('tokenListCloseBtn');
-        const tokenListContent = document.getElementById('tokenListContent');
+        document.getElementById('copyPrivateKeyBtn').addEventListener('click', () => {
+            if (privateKey) {
+                navigator.clipboard.writeText(privateKey);
+                showStatus('identityStatus', '✓ 私钥已复制', 'success');
+            }
+        });
 
-        // 代币列表数据
-        const tokens = [
-            'B.TC', 'B:TC', 'B|TC', 'BT:C', 'BT=C', 'BT%C', 'BT;C', 'B;TC', 
-            'B+TC', 'BT+C', 'B%TC', 'BT~C', 'BT*C', 'BT^C', 'B~TC', 'B,TC', 
-            'B^TC', 'B>TC'
-        ];
+        document.getElementById('generateTransferBtn').addEventListener('click', generateTransferVoucher);
+        document.getElementById('copyTransferBtn').addEventListener('click', () => {
+            const voucher = document.getElementById('transferVoucher').value;
+            if (voucher) {
+                navigator.clipboard.writeText(voucher);
+                showStatus('transferStatus', '✓ 凭证已复制', 'success');
+            }
+        });
 
-        function renderTokenList() {
-            let html = '';
-            tokens.forEach(token => {
-                html += `<div class="token-item">${token}<span class="token-supply">2099 万亿</span></div>`;
+        document.getElementById('verifyReceiveBtn').addEventListener('click', verifyAndReceive);
+
+        document.getElementById('startMiningBtn').addEventListener('click', startMining);
+        document.getElementById('stopMiningBtn').addEventListener('click', stopMining);
+
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+            document.getElementById('withdrawModal').classList.add('active');
+        });
+
+        document.getElementById('copyContactBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText('15932447705');
+            showStatus('withdrawStatus', '✓ 号码已复制', 'success');
+        });
+
+        document.getElementById('closeWithdrawBtn').addEventListener('click', () => {
+            document.getElementById('withdrawModal').classList.remove('active');
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
             });
-            tokenListContent.innerHTML = html;
-        }
+        });
 
-        function openTokenList() {
-            renderTokenList();
-            tokenListModal.classList.add('active');
-        }
-
-        function closeTokenList() {
-            tokenListModal.classList.remove('active');
-        }
-
-        tokenListBtn.addEventListener('click', openTokenList);
-        tokenListCloseBtn.addEventListener('click', closeTokenList);
-
-        // 点击模态框外部关闭代币列表
-        tokenListModal.addEventListener('click', (e) => {
-            if (e.target === tokenListModal) {
-                closeTokenList();
+        // 模态框外部关闭
+        document.getElementById('withdrawModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('withdrawModal')) {
+                document.getElementById('withdrawModal').classList.remove('active');
             }
         });
 
-        // 提现说明功能
-        const withdrawGuideBtn = document.getElementById('withdrawGuideBtn');
-        const withdrawGuideModal = document.getElementById('withdrawGuideModal');
-        const withdrawGuideCloseBtn = document.getElementById('withdrawGuideCloseBtn');
-
-        function openWithdrawGuide() {
-            withdrawGuideModal.classList.add('active');
-        }
-
-        function closeWithdrawGuide() {
-            withdrawGuideModal.classList.remove('active');
-        }
-
-        withdrawGuideBtn.addEventListener('click', openWithdrawGuide);
-        withdrawGuideCloseBtn.addEventListener('click', closeWithdrawGuide);
-
-        // 点击模态框外部关闭提现说明
-        withdrawGuideModal.addEventListener('click', (e) => {
-            if (e.target === withdrawGuideModal) {
-                closeWithdrawGuide();
+        document.getElementById('importModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('importModal')) {
+                document.getElementById('importModal').classList.remove('active');
             }
         });
 
-        // 社区红利功能
-        const communityBonusBtn = document.getElementById('communityBonusBtn');
-        const communityBonusModal = document.getElementById('communityBonusModal');
-        const communityBonusCloseBtn = document.getElementById('communityBonusCloseBtn');
-
-        function openCommunityBonus() {
-            communityBonusModal.classList.add('active');
-        }
-
-        function closeCommunityBonus() {
-            communityBonusModal.classList.remove('active');
-        }
-
-        communityBonusBtn.addEventListener('click', openCommunityBonus);
-        communityBonusCloseBtn.addEventListener('click', closeCommunityBonus);
-
-        // 点击模态框外部关闭社区红利
-        communityBonusModal.addEventListener('click', (e) => {
-            if (e.target === communityBonusModal) {
-                closeCommunityBonus();
-            }
-        });
-
-        // 手动加币功能 - 每日上限500个代币
-        const manualAddBtn = document.getElementById('manualAddBtn');
-        const manualAddCount = document.getElementById('manualAddCount');
-        
-        function getTodayKey() {
-            const today = new Date();
-            return `manualAdd_${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-        }
-        
-        function getTodayAddedCount() {
-            const key = getTodayKey();
-            const count = localStorage.getItem(key);
-            return count ? parseInt(count) : 0;
-        }
-        
-        function updateTodayAddedCount(count) {
-            const key = getTodayKey();
-            localStorage.setItem(key, count);
-        }
-        
-        function updateManualAddButton() {
-            const todayCount = getTodayAddedCount();
-            manualAddCount.textContent = todayCount;
-            
-            if (todayCount >= 500) {
-                manualAddBtn.disabled = true;
-                manualAddBtn.style.opacity = '0.5';
-                manualAddBtn.style.cursor = 'not-allowed';
-            } else {
-                manualAddBtn.disabled = false;
-                manualAddBtn.style.opacity = '1';
-                manualAddBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        function addManualToken() {
-            const todayCount = getTodayAddedCount();
-            
-            if (todayCount >= 500) {
-                addLog('> ⚠️ 今日手动加币已达上限(500)，请明天再来');
-                return;
-            }
-            
-            if (!isMining) {
-                startMining();
-            }
-            
-            balance += 1;
-            balanceValue.textContent = balance;
-            lastCoinTime = Date.now();
-            
-            const newCount = todayCount + 1;
-            updateTodayAddedCount(newCount);
-            updateManualAddButton();
-            
-            saveState();
-            addLog(`> 💎 手动加币：+1 BTC (今日 ${newCount}/500)`);
-        }
-        
-        manualAddBtn.addEventListener('click', addManualToken);
-        
-        updateManualAddButton();
-
-        // ========== 每日打卡功能 ==========
-        const checkInBtn = document.getElementById('checkInBtn');
-        const checkInDays = document.getElementById('checkInDays');
-        
-        // 获取上次打卡的日期
-        function getLastCheckInDate() {
-            return localStorage.getItem('lastCheckInDate');
-        }
-        
-        // 设置今天的打卡日期
-        function setTodayCheckIn() {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('lastCheckInDate', today);
-        }
-        
-        // 获取累计打卡天数
-        function getTotalCheckInDays() {
-            const days = localStorage.getItem('totalCheckInDays');
-            return days ? parseInt(days) : 0;
-        }
-        
-        // 更新累计打卡天数
-        function updateTotalCheckInDays(days) {
-            localStorage.setItem('totalCheckInDays', days);
-        }
-        
-        // 检查是否已经打过卡
-        function hasCheckedInToday() {
-            const today = new Date().toISOString().split('T')[0];
-            return getLastCheckInDate() === today;
-        }
-        
-        // 更新打卡按钮状态
-        function updateCheckInButton() {
-            const totalDays = getTotalCheckInDays();
-            checkInDays.textContent = totalDays;
-            
-            if (hasCheckedInToday()) {
-                checkInBtn.disabled = true;
-                checkInBtn.style.opacity = '0.5';
-                checkInBtn.style.cursor = 'not-allowed';
-            } else {
-                checkInBtn.disabled = false;
-                checkInBtn.style.opacity = '1';
-                checkInBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        function performCheckIn() {
-            if (hasCheckedInToday()) {
-                addLog('> ⚠️ 今天已经打过卡了，明天再来');
-                return;
-            }
-            
-            if (!isMining) {
-                startMining();
-            }
-            
-            // 增加300个代币
-            balance += 300;
-            balanceValue.textContent = balance;
-            lastCoinTime = Date.now();
-            
-            // 更新打卡记录
-            const totalDays = getTotalCheckInDays() + 1;
-            updateTotalCheckInDays(totalDays);
-            setTodayCheckIn();
-            updateCheckInButton();
-            
-            saveState();
-            addLog(`> 📅 每日打卡：+300 BTC (累计 ${totalDays}/30 天)`);
-            
-            // 检查是否满月
-            if (totalDays === 30) {
-                balance += 3000;
-                balanceValue.textContent = balance;
-                addLog('> 🎉 恭喜！满月大奖：+3000 BTC！');
-                addLog('> 🎊 累计打卡30天，获得满月奖励！');
-                // 重置打卡计数
-                updateTotalCheckInDays(0);
-                updateCheckInButton();
-            }
-        }
-        
-        checkInBtn.addEventListener('click', performCheckIn);
-        
-        updateCheckInButton();
-
-        // ========== 睡觉福利功能 ==========
-        const sleepBtn = document.getElementById('sleepBtn');
-        
-        // 获取睡觉福利领取日期
-        function getLastSleepDate() {
-            return localStorage.getItem('lastSleepDate');
-        }
-        
-        // 设置今天的睡觉福利日期
-        function setTodaySleep() {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('lastSleepDate', today);
-        }
-        
-        // 检查是否已经领过睡觉福利
-        function hasSleepToday() {
-            const today = new Date().toISOString().split('T')[0];
-            return getLastSleepDate() === today;
-        }
-        
-        // 更新睡觉福利按钮状态
-        function updateSleepButton() {
-            if (hasSleepToday()) {
-                sleepBtn.disabled = true;
-                sleepBtn.style.opacity = '0.5';
-                sleepBtn.style.cursor = 'not-allowed';
-            } else {
-                sleepBtn.disabled = false;
-                sleepBtn.style.opacity = '1';
-                sleepBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        function getSleep() {
-            if (hasSleepToday()) {
-                addLog('> ⚠️ 今天已经领过睡觉福利了，明天再来');
-                return;
-            }
-            
-            if (!isMining) {
-                startMining();
-            }
-            
-            balance += 100;
-            balanceValue.textContent = balance;
-            lastCoinTime = Date.now();
-            
-            setTodaySleep();
-            updateSleepButton();
-            
-            saveState();
-            addLog('> 😴 睡觉福利：+100 BTC');
-        }
-        
-        sleepBtn.addEventListener('click', getSleep);
-        updateSleepButton();
-
-        // ========== 搬砖功能 ==========
-        const workBtn = document.getElementById('workBtn');
-        
-        // 获取搬砖点击次数
-        function getWorkClickCount() {
-            const today = new Date().toISOString().split('T')[0];
-            const data = localStorage.getItem('workData');
-            if (!data) return { date: today, count: 0 };
-            
-            const parsed = JSON.parse(data);
-            if (parsed.date !== today) {
-                return { date: today, count: 0 };
-            }
-            return parsed;
-        }
-        
-        // 更新搬砖点击次数
-        function updateWorkClickCount(count) {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('workData', JSON.stringify({ date: today, count: count }));
-        }
-        
-        // 更新搬砖按钮状态
-        function updateWorkButton() {
-            const data = getWorkClickCount();
-            if (data.count >= 2) {
-                workBtn.disabled = true;
-                workBtn.style.opacity = '0.5';
-                workBtn.style.cursor = 'not-allowed';
-            } else {
-                workBtn.disabled = false;
-                workBtn.style.opacity = '1';
-                workBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        function doWork() {
-            const data = getWorkClickCount();
-            
-            if (data.count >= 2) {
-                addLog('> ⚠️ 今天搬砖已达上限(2次)，请明天再来');
-                return;
-            }
-            
-            if (!isMining) {
-                startMining();
-            }
-            
-            const newCount = data.count + 1;
-            
-            if (newCount === 2) {
-                balance += 1000;
-                balanceValue.textContent = balance;
-                lastCoinTime = Date.now();
-                addLog('> 💪 搬砖完成：+1000 BTC (2/2次)');
-            } else {
-                addLog('> 💪 搬砖中... (1/2次)');
-            }
-            
-            updateWorkClickCount(newCount);
-            updateWorkButton();
-            saveState();
-        }
-        
-        workBtn.addEventListener('click', doWork);
-        updateWorkButton();
-
-        // ========== 红包功能 ==========
-        const redPacketBtn = document.getElementById('redPacketBtn');
-        
-        // 获取红包领取日期
-        function getLastRedPacketDate() {
-            return localStorage.getItem('lastRedPacketDate');
-        }
-        
-        // 设置今天的红包日期
-        function setTodayRedPacket() {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('lastRedPacketDate', today);
-        }
-        
-        // 检查是否已经领过红包
-        function hasRedPacketToday() {
-            const today = new Date().toISOString().split('T')[0];
-            return getLastRedPacketDate() === today;
-        }
-        
-        // 更新红包按钮状态
-        function updateRedPacketButton() {
-            if (hasRedPacketToday()) {
-                redPacketBtn.disabled = true;
-                redPacketBtn.style.opacity = '0.5';
-                redPacketBtn.style.cursor = 'not-allowed';
-            } else {
-                redPacketBtn.disabled = false;
-                redPacketBtn.style.opacity = '1';
-                redPacketBtn.style.cursor = 'pointer';
-            }
-        }
-        
-        function getRedPacket() {
-            if (hasRedPacketToday()) {
-                addLog('> ⚠️ 今天已经领过红包了，明天再来');
-                return;
-            }
-            
-            if (!isMining) {
-                startMining();
-            }
-            
-            balance += 5;
-            balanceValue.textContent = balance;
-            lastCoinTime = Date.now();
-            
-            setTodayRedPacket();
-            updateRedPacketButton();
-            
-            saveState();
-            addLog('> 🧧 红包：+5 BTC');
-        }
-        
-        redPacketBtn.addEventListener('click', getRedPacket);
-        updateRedPacketButton();
-
-        // 点击模态框外部关闭
-        withdrawModal.addEventListener('click', (e) => {
-            if (e.target === withdrawModal) {
-                closeWithdraw();
-            }
-        });
-
-        // ========== 初始化 ==========
+        // 初始化
         loadState();
-        addLog('> 系统就绪');
-        addLog('> 点击白皮书了解更多信息');
-        addLog('> 点击代币列表查看可兽换代币');
     </script>
 </body>
 </html>
